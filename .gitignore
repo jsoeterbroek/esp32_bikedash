@@ -1,2 +1,4 @@
 binding/
 build/
+.vscode/
+lvgl/
