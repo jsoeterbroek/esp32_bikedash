@@ -1,1 +1,5 @@
+https://www.youtube.com/watch?v=cBtsLxZ13hQ
+https://www.youtube.com/watch?v=ol6aSBYIbYk
+https://www.dofbot.com/post/speedometer-gauge-with-esp32-and-3-5inch-tft-display
 https://randomnerdtutorials.com/lvgl-cheap-yellow-display-esp32-2432s028r/
+https://ctmprojectsblog.wordpress.com/2022/02/14/oled-splash-screen-logo/
