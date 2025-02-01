@@ -14,3 +14,6 @@
 	path = lv_demos
 	url = https://github.com/lvgl/lv_demos.git
 	active = true
+[submodule "TFT_eSPI"]
+	path = TFT_eSPI
+	url = git@github.com:Bodmer/TFT_eSPI.git
