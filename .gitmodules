@@ -1,19 +1,6 @@
-[submodule "lvgl"]
-	path = lvgl
-	url = https://github.com/littlevgl/lvgl.git
-	active = true
-[submodule "lv_examples"]
-	path = lv_examples
-	url = https://github.com/littlevgl/lv_examples.git
-	active = true
-[submodule "lv_drivers"]
-	path = lv_drivers
-	url = https://github.com/littlevgl/lv_drivers.git
-	active = true
-[submodule "lv_demos"]
-	path = lv_demos
-	url = https://github.com/lvgl/lv_demos.git
-	active = true
-[submodule "TFT_eSPI"]
-	path = TFT_eSPI
-	url = git@github.com:Bodmer/TFT_eSPI.git
+[submodule "binding/lvgl"]
+	path = binding/lvgl
+	url = https://github.com/lvgl/lvgl.git
+[submodule "binding/pycparser"]
+	path = binding/pycparser
+	url = https://github.com/eliben/pycparser.git
