@@ -2,3 +2,4 @@ binding/
 build/
 .vscode/
 lvgl/
+errors.txt

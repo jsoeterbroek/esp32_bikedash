@@ -2,6 +2,7 @@
 #include <TFT_eSPI.h>
 #include <ui.h>
 
+/* lvgl version 8.2
 /*Don't forget to set Sketchbook location in File/Preferences to the path of your UI project (the parent foder of this INO file)*/
 
 /*Change to your screen resolution*/
