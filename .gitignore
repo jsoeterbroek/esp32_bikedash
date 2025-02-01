@@ -21,7 +21,7 @@ rad.json
 #Test results file
 TestResults.xml
 
-lv_drivers
-lv_examples
-lvgl
+lv_drivers/
+lv_examples/
+lvgl/
 
