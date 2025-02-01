@@ -1,12 +1,16 @@
-[submodule "lv_examples"]
-	path = lv_examples
-	url = https://github.com/littlevgl/lv_examples.git
-[submodule "lv_drivers"]
-	path = lv_drivers
-	url = https://github.com/littlevgl/lv_drivers.git
 [submodule "lvgl"]
 	path = lvgl
 	url = https://github.com/littlevgl/lvgl.git
+	active = true
+[submodule "lv_examples"]
+	path = lv_examples
+	url = https://github.com/littlevgl/lv_examples.git
+	active = true
+[submodule "lv_drivers"]
+	path = lv_drivers
+	url = https://github.com/littlevgl/lv_drivers.git
+	active = true
 [submodule "lv_demos"]
 	path = lv_demos
-	url = https://github.com/lvgl/lv_demos
+	url = https://github.com/lvgl/lv_demos.git
+	active = true
