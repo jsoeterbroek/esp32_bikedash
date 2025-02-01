@@ -95,10 +95,10 @@ void setup() {
   pinMode(HORN,INPUT_PULLUP);
   pinMode(BRIGHTNESS,INPUT_PULLUP);
 
- pinMode(left_pointer,OUTPUT);
- pinMode(right_pointer,OUTPUT);
- pinMode(head_lights,OUTPUT);
- pinMode( buzzer,OUTPUT);
+  pinMode(left_pointer,OUTPUT);
+  pinMode(right_pointer,OUTPUT);
+  pinMode(head_lights,OUTPUT);
+  pinMode( buzzer,OUTPUT);
 
 
   tft.init();
@@ -111,16 +111,13 @@ void setup() {
     sprite.setTextColor(TFT_WHITE,backColor);
     sprite.setTextDatum(4);
 
-     ledcSetup(0, 10000, 8);
-     ledcAttachPin(38, 0);
-     ledcWrite(0, brightnesses[selectedBrightness]);  //brightnes of screen
+    // ledcSetup(1, 10000, 8);
+    // ledcAttachPin(38, 0);
+    ledcWrite(0, brightnesses[selectedBrightness]);  //brightnes of screen
 
-   
-      ledcSetup(1, 10000, 8);
-     ledcAttachPin(head_lights, 1);
-     //ledcWrite(1, 10); 
-
-    
+    // ledcSetup(1, 10000, 8);
+    // ledcAttachPin(head_lights, 1);
+    // ledcWrite(1, 10);     
 
   int a=120;
   for(int i=0;i<360;i++)
@@ -149,8 +146,6 @@ void setup() {
      
 }
 
-
-
 void draw()
 {
   sprite.fillSprite(backColor);
@@ -177,10 +172,10 @@ void draw()
    sprite.drawRect(144+(7*i),36,5,5,TFT_WHITE); //empty fuel rect
    }   
 
-    sprite.fillSmoothRoundRect(155,54,9,16,2,TFT_WHITE,blockColor[1]);
-    sprite.fillSmoothRoundRect(166,56,2,14,2,TFT_WHITE,blockColor[1]);
-    sprite.fillSmoothRoundRect(156,56,7,5,1,blockColor[1],TFT_WHITE);
-    sprite.drawLine(153,69,166,69,TFT_WHITE);  //pumpimage
+  sprite.fillSmoothRoundRect(155,54,9,16,2,TFT_WHITE,blockColor[1]);
+  sprite.fillSmoothRoundRect(166,56,2,14,2,TFT_WHITE,blockColor[1]);
+  sprite.fillSmoothRoundRect(156,56,7,5,1,blockColor[1],TFT_WHITE);
+  sprite.drawLine(153,69,166,69,TFT_WHITE);  //pumpimage
  
   sprite.drawSmoothArc(cx, cy, r, ir, 30, 330, gaugeColor, backColor);
   sprite.drawSmoothArc(320-cx, cy, r, ir, 30, 330, gaugeColor, backColor);
@@ -360,7 +355,5 @@ void loop() {
     else
     rpmAngle=0;
     } 
-
-  
 
 }
