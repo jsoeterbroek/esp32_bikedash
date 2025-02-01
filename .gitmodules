@@ -1,6 +1,9 @@
-[submodule "binding/lvgl"]
+[submodule "lvgl"]
 	path = binding/lvgl
 	url = https://github.com/lvgl/lvgl.git
-[submodule "binding/pycparser"]
+[submodule "pycparser"]
 	path = binding/pycparser
 	url = https://github.com/eliben/pycparser.git
+[submodule "micropython"]
+	path = binding/micropython
+	url = https://github.com/micropython/micropython
