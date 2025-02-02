@@ -13,7 +13,10 @@
             ],
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "intelliSenseMode": "msvc-x64"
+            "intelliSenseMode": "msvc-x64",
+            "compileCommands": [
+                "${workspaceFolder}/tgauge/build/esp32.esp32.esp32/compile_commands.json"
+            ]
         }
     ],
     "version": 4
