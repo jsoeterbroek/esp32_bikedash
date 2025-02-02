@@ -94,11 +94,10 @@ void setup() {
   pinMode(LONG,INPUT_PULLUP);
   pinMode(HORN,INPUT_PULLUP);
   pinMode(BRIGHTNESS,INPUT_PULLUP);
-
- pinMode(left_pointer,OUTPUT);
- pinMode(right_pointer,OUTPUT);
- pinMode(head_lights,OUTPUT);
- pinMode( buzzer,OUTPUT);
+  pinMode(left_pointer,OUTPUT);
+  pinMode(right_pointer,OUTPUT);
+  pinMode(head_lights,OUTPUT);
+  pinMode(buzzer,OUTPUT);
 
 
   tft.init();
@@ -113,11 +112,11 @@ void setup() {
 
      // ledcSetup(0, 10000, 8);
      // ledcAttachPin(38, 0);
-     ledcWrite(0, brightnesses[selectedBrightness]);  //brightnes of screen
-
+     // ledcWrite(0, brightnesses[selectedBrightness]);  //brightnes of screen
      // ledcSetup(1, 10000, 8);
      // ledcAttachPin(head_lights, 1);
-     // ledcWrite(1, 10);    
+     // ledcWrite(1, 10);
+     //ledcAttach(16, 10000, 8);
 
   int a=120;
   for(int i=0;i<360;i++)
@@ -145,8 +144,6 @@ void setup() {
     }
      
 }
-
-
 
 void draw()
 {
@@ -270,7 +267,7 @@ void loop() {
   else
   lights=0;
 
-  ledcWrite(1, lights*4); 
+  // ledcWrite(1, lights*4);
 
   if(digitalRead(HORN)==0)
   digitalWrite(buzzer,1);
@@ -279,19 +276,16 @@ void loop() {
 
   braking=!(digitalRead(BRAKE));
 
-
-
-   if(digitalRead(BRIGHTNESS)==0)
+  if(digitalRead(BRIGHTNESS)==0)
   {
   if(debB==0)
     {
       debB=1;
       selectedBrightness++;
       if(selectedBrightness==5) selectedBrightness=0;
-      ledcWrite(0, brightnesses[selectedBrightness]);  //brightnes of screen
+      // ledcWrite(0, brightnesses[selectedBrightness]);  //brightnes of screen
      }
   }else debB=0;
-
 
   if(digitalRead(GEARUP)==0)
   {
@@ -348,16 +342,14 @@ void loop() {
   if(digitalRead(THROTTLE)==1 && speedAngle>0)
   speedAngle--; 
 
-   if(digitalRead(THROTTLE)==0 && rpmAngle<75)
+  if(digitalRead(THROTTLE)==0 && rpmAngle<75)
   {rpmAngle=rpmAngle+1-(0.1*selectedGear);} 
 
-   if(digitalRead(THROTTLE)==1 && rpmAngle>0)
+  if(digitalRead(THROTTLE)==1 && rpmAngle>0)
   { if(rpmAngle>=3)
     rpmAngle=rpmAngle-3;
     else
     rpmAngle=0;
     } 
-
-  
 
 }
