@@ -188,34 +188,33 @@ void draw()
   sprite.drawSmoothArc(320-cx, cy, r-38, ir-37, 10, 350, gaugeColor, backColor);
   
    //.....................................................draw GAUGES
-     for(int i=0;i<26;i++){
+   for(int i=0;i<26;i++){
      if(i<20) {color1=gaugeColor; color2=TFT_WHITE;} else {color1=purple; color2=purple;}
 
-  if(i%2==0) {
-  sprite.drawWedgeLine(x[i*12],y[i*12],px[i*12],py[i*12],2,1,color1);
-  sprite.setTextColor(color2,backColor);
-  sprite.drawString(String(i*10),lx[i*12],ly[i*12]);
-  }else
-  sprite.drawWedgeLine(x[i*12],y[i*12],px[i*12],py[i*12],1,1,color2);
-  }
+     if(i%2==0) {
+       sprite.drawWedgeLine(x[i*12],y[i*12],px[i*12],py[i*12],2,1,color1);
+       sprite.setTextColor(color2,backColor);
+       sprite.drawString(String(i*10),lx[i*12],ly[i*12]);
+     }else
+       sprite.drawWedgeLine(x[i*12],y[i*12],px[i*12],py[i*12],1,1,color2);
+   }
 
-      for(int i=0;i<19;i++){
-      if(i<20) {color1=gaugeColor; color2=TFT_WHITE;} else {color1=purple; color2=purple;}
+   for(int i=0;i<19;i++){
+     if(i<20) {color1=gaugeColor; color2=TFT_WHITE;} else {color1=purple; color2=purple;}
 
-  if(i%2==0) {
-  sprite.drawWedgeLine(x2[i*16],y2[i*16],px2[i*16],py2[i*16],2,1,color1);
-  sprite.setTextColor(color2,backColor);
-  sprite.drawString(String(i/2),lx2[i*16],ly2[i*16]);
-  }else
-  sprite.drawWedgeLine(x2[i*16],y2[i*16],px2[i*16],py2[i*16],1,1,color2);
-  }
+     if(i%2==0) {
+       sprite.drawWedgeLine(x2[i*16],y2[i*16],px2[i*16],py2[i*16],2,1,color1);
+       sprite.setTextColor(color2,backColor);
+       sprite.drawString(String(i/2),lx2[i*16],ly2[i*16]);
+     }else
+       sprite.drawWedgeLine(x2[i*16],y2[i*16],px2[i*16],py2[i*16],1,1,color2);
+   }
 
   // ........................................needles draw
-   sA=speedAngle*1.2;
-   rA=2*rpmAngle*1.6;
-   sprite.drawWedgeLine(px[(int)sA],py[(int)sA],nx[(int)sA],ny[(int)sA],2,2,needleColor);
-   sprite.drawWedgeLine(px2[(int)rA],py2[(int)rA],nx2[(int)rA],ny2[(int)rA],2,2,needleColor);
-
+  sA=speedAngle*1.2;
+  rA=2*rpmAngle*1.6;
+  sprite.drawWedgeLine(px[(int)sA],py[(int)sA],nx[(int)sA],ny[(int)sA],2,2,needleColor);
+  sprite.drawWedgeLine(px2[(int)rA],py2[(int)rA],nx2[(int)rA],ny2[(int)rA],2,2,needleColor);
 
   //.....................................drawing  TEXT
   sprite.setTextColor(TFT_WHITE,backColor);
@@ -351,5 +350,4 @@ void loop() {
     else
     rpmAngle=0;
     } 
-
 }
