@@ -7,3 +7,4 @@ https://ctmprojectsblog.wordpress.com/2022/02/14/oled-splash-screen-logo/
 https://www.elecrow.com/esp32-display-3-5-inch-hmi-display-spi-tft-lcd-touch-screen.html
 https://www.makerguides.com/digital-clock-crowpanel-3-5-display/
 https://github.com/Bodmer/TFT_eSPI?tab=readme-ov-file
+https://www.youtube.com/watch?v=i-TA3Xwja64
