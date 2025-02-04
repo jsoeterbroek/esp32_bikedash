@@ -1,10 +1,13 @@
 /*
+ Collector
+  A = collector MAC: FC:B4:67:F6:90:E0
+  B = dashboard MAC: D8:BC:38:FA:D4:A4
 */
 #include <esp_now.h>
 #include <WiFi.h>
 
-// REPLACE WITH THE MAC Address of your receiver (dashboard)
-uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+// REPLACE WITH THE MAC Address of your receiver 
+uint8_t broadcastAddress[] = {0xd8, 0xbc, 0x38, 0xfa, 0xd4, 0xa4};
 
 // Variable to store if sending data was successful
 String success;
