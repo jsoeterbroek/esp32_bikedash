@@ -64,21 +64,21 @@ void setup() {
   }
 }
  
-void loop() {
+void send_data() {
  
-  // Set values to send
+  // Set initial values to send
   outgoingData.speed_kph = 13;
   outgoingData.speed_rpm = 12;
   outgoingData.fuel_perc = 50;
   outgoingData.collector_is_dev = true;
-  
+
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingData, sizeof(outgoingData));
-   
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
-  }
-  else {
+  if (result != ESP_OK) {
     Serial.println("Error sending the data");
   }
+}
+
+void loop() {
+  send_data();
 }

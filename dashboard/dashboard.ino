@@ -68,5 +68,5 @@ void loop() {
   Serial.print("Fuel Percentage: ");
   Serial.println(collectorData.fuel_perc);
   Serial.println("------------------------------");
-  delay(5000);
+  delay(100);
 }

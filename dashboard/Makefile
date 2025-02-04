@@ -184,11 +184,11 @@ $(info SERIAL_BAUD  is [${SERIAL_BAUD}])
 $(info CUSTOM_LIBS  is [${CUSTOM_LIBS}])
 $(info SPEEDLABEL   is [${SPEEDLABEL}])
 
-all: setversion $(ELF) upload
-.PHONY: setversion all
+all: $(ELF) upload
+.PHONY: all
 
-compile: setversion $(ELF)
-.PHONY: setversion compile
+compile: $(ELF)
+.PHONY: compile
 
 $(ELF): $(SRC) $(HDRS)
 	arduino-cli compile -b $(FQBN) --build-path $(BUILD_DIR) $(VFLAG) $(CUSTOM_LIBS) $(CFLAGS)
