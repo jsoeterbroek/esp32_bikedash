@@ -84,6 +84,13 @@ GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 #    SERIAL_BAUD
 -include vars.mak
 
+# version
+FILE_CONFIG := dashboard.h
+VERSIONS = MAJOR MINOR GIT
+getnum = $(shell sed -n 's/.*$1  *\([a-z0-9*]\)/\1/p' $(FILE_CONFIG))
+$(foreach v,$(VERSIONS),$(eval VERSION_$(v) := $(call getnum,$(v))))
+VERSION := $(VERSION_MAJOR).$(VERSION_MINOR).$(GIT_VERSION)
+
 #
 # ----- setup for ESP32 LilyGo T3 v 1.6.1
 #FQBN        ?= esp32:esp32:lilygo_t_display_s3
@@ -106,8 +113,8 @@ FQBN        ?= arduino:avr:uno
 #SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
 SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud' | head -1 | awk '{print $$6}')
 
-ifdef GIT_VERSION
-  CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(GIT_VERSION)\"
+ifdef VERSION
+  CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(VERSION)\"
 else
   CFLAGS =
 endif
@@ -157,6 +164,7 @@ BIN        := $(BUILD_DIR)/$(SRCINO).bin
 ELF        := $(BUILD_DIR)/$(SRCINO).elf
 
 $(info OSFAMILY     is [${OSFAMILY}])
+$(info VERSION      is [${VERSION}])
 $(info GIT_VERSION  is [${GIT_VERSION}])
 $(info FQBN         is [${FQBN}])
 $(info IOT_NAME     is [${IOT_NAME}])
@@ -176,12 +184,11 @@ $(info SERIAL_BAUD  is [${SERIAL_BAUD}])
 $(info CUSTOM_LIBS  is [${CUSTOM_LIBS}])
 $(info SPEEDLABEL   is [${SPEEDLABEL}])
 
+all: setversion $(ELF) upload
+.PHONY: setversion all
 
-all: $(ELF) upload
-.PHONY: all
-
-compile: $(ELF)
-.PHONY: compile
+compile: setversion $(ELF)
+.PHONY: setversion compile
 
 $(ELF): $(SRC) $(HDRS)
 	arduino-cli compile -b $(FQBN) --build-path $(BUILD_DIR) $(VFLAG) $(CUSTOM_LIBS) $(CFLAGS)
@@ -231,7 +238,7 @@ clean:
 	rm -rf build
 
 find:
-	@if [ "$(OSFAMILY)" = "Linux" ] ;   \
+	@if [ "$(OSFAMILY)" = "Linux" ] ; \
 	then  avahi-browse _arduino._tcp --resolve --parsable --terminate ; \
 	elif [ "$(OSFAMILY)" = "Darwin" ] ; \
 	then  timeout 5 dns-sd -B _arduino._tcp ; echo; \
@@ -248,8 +255,17 @@ requirements:
 	fi
 
 serial:
-	if [ ! -c $(SERIAL_DEV) ] ; \
+	@if [ ! -c $(SERIAL_DEV) ] ; \
 	then echo "---> ERROR: Serial Device not available, please set the SERIAL_DEV environment variable" ; \
 	else echo "---> Monitoring serial\n"; \
 	arduino-cli monitor -b $(FQBN) -p $(SERIAL_DEV) -c baudrate=$(SERIAL_BAUD) ; \
 	fi
+
+setversion:
+	@printf '' > $(FILE_CONFIG)
+	@printf '#define VERSION_MAJOR ${VERSION_MAJOR}\n' >> $(FILE_CONFIG)
+	@printf '#define VERSION_MINOR ${VERSION_MINOR}\n' >> $(FILE_CONFIG)
+	@printf '#define VERSION_GIT ${GIT_VERSION}\n' >> $(FILE_CONFIG)
+
+getversion:
+	@printf '%s\r\n' '$(VERSION)'
