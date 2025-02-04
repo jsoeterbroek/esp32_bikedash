@@ -100,7 +100,8 @@ FQBN        ?= arduino:avr:uno
 #
 # --- Upload Speed Label: the "arduino-cli upload" command uses "baud" or UploadSpeed to specify
 #     the board upload speed, the following variable will heve the correct value
-SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
+#SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
+SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud' | head -1 | awk '{print $$6}')
 
 ifdef GIT_VERSION
   CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(GIT_VERSION)\"
@@ -190,7 +191,7 @@ upload: compile
 	@if [ ! -c $(SERIAL_DEV) ] ; \
 	then echo "---> ERROR: Serial Device not available, please set the SERIAL_DEV environment variable" ; \
 	else echo "---> Uploading sketch\n"; \
-	arduino-cli upload -b $(FQBN):$(SPEEDLABEL)=115200 -p $(SERIAL_DEV)  --input-dir $(BUILD_DIR) $(VFLAG) ; \
+	arduino-cli upload -b $(FQBN) -p $(SERIAL_DEV) --input-dir $(BUILD_DIR) $(VFLAG) ; \
 	fi
 
 ota: compile

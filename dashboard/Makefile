@@ -48,6 +48,8 @@
 #               /dev/ttyACM0   if it exists, or
 #               unknown
 #
+#   SERIAL_BAUD
+#
 #   IOT_NAME    Name of the IOT device; if not set in the environment
 #               it will be assigned a value in this makefile. This is
 #               very useful for OTA update, the device will be searched
@@ -79,6 +81,7 @@ GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 #    OTA_PORT
 #    OTA_PASS
 #    SERIAL_DEV
+#    SERIAL_BAUD
 -include vars.mak
 
 #
@@ -100,7 +103,8 @@ FQBN        ?= arduino:avr:uno
 #
 # --- Upload Speed Label: the "arduino-cli upload" command uses "baud" or UploadSpeed to specify
 #     the board upload speed, the following variable will heve the correct value
-SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
+#SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
+SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud' | head -1 | awk '{print $$6}')
 
 ifdef GIT_VERSION
   CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(GIT_VERSION)\"
@@ -128,7 +132,13 @@ ifndef SERIAL_DEV
   endif
 endif
 
-
+ifndef SERIAL_BAUD
+  ifneq (,$(wildcard 115200))
+    SERIAL_BAUD = 115200
+  else
+    SERIAL_BAUD = 115200
+  endif
+endif
 
 ifndef CUSTOM_LIBS
   ifneq (,$(wildcard libraries))
@@ -146,24 +156,25 @@ HDRS       := $(wildcard *.h mylib/*/*.h)
 BIN        := $(BUILD_DIR)/$(SRCINO).bin
 ELF        := $(BUILD_DIR)/$(SRCINO).elf
 
-$(info OSFAMILY    is [${OSFAMILY}])
-$(info GIT_VERSION is [${GIT_VERSION}])
-$(info FQBN        is [${FQBN}])
-$(info IOT_NAME    is [${IOT_NAME}])
-$(info IOT_IP      is [${IOT_IP}])
-$(info OTA_PORT    is [${OTA_PORT}])
-$(info OTA_PASS    is [${OTA_PASS}])
-$(info V           is [${V}])
-$(info VFLAG       is [${VFLAG}])
-$(info MAKE_DIR    is [${MAKE_DIR}])
-$(info BUILD_DIR   is [${BUILD_DIR}])
-$(info SRCINO      is [${SRCINO}])
-$(info SRC         is [${SRC}])
-$(info HDRS        is [${HDRS}])
-$(info BIN         is [${BIN}])
-$(info SERIAL_DEV  is [${SERIAL_DEV}])
-$(info CUSTOM_LIBS is [${CUSTOM_LIBS}])
-$(info SPEEDLABEL  is [${SPEEDLABEL}])
+$(info OSFAMILY     is [${OSFAMILY}])
+$(info GIT_VERSION  is [${GIT_VERSION}])
+$(info FQBN         is [${FQBN}])
+$(info IOT_NAME     is [${IOT_NAME}])
+$(info IOT_IP       is [${IOT_IP}])
+$(info OTA_PORT     is [${OTA_PORT}])
+$(info OTA_PASS     is [${OTA_PASS}])
+$(info V            is [${V}])
+$(info VFLAG        is [${VFLAG}])
+$(info MAKE_DIR     is [${MAKE_DIR}])
+$(info BUILD_DIR    is [${BUILD_DIR}])
+$(info SRCINO       is [${SRCINO}])
+$(info SRC          is [${SRC}])
+$(info HDRS         is [${HDRS}])
+$(info BIN          is [${BIN}])
+$(info SERIAL_DEV   is [${SERIAL_DEV}])
+$(info SERIAL_BAUD  is [${SERIAL_BAUD}])
+$(info CUSTOM_LIBS  is [${CUSTOM_LIBS}])
+$(info SPEEDLABEL   is [${SPEEDLABEL}])
 
 
 all: $(ELF) upload
@@ -190,7 +201,7 @@ upload: compile
 	@if [ ! -c $(SERIAL_DEV) ] ; \
 	then echo "---> ERROR: Serial Device not available, please set the SERIAL_DEV environment variable" ; \
 	else echo "---> Uploading sketch\n"; \
-	arduino-cli upload -b $(FQBN):$(SPEEDLABEL)=115200 -p $(SERIAL_DEV)  --input-dir $(BUILD_DIR) $(VFLAG) ; \
+	arduino-cli upload -b $(FQBN) -p $(SERIAL_DEV) --input-dir $(BUILD_DIR) $(VFLAG) ; \
 	fi
 
 ota: compile
@@ -236,5 +247,9 @@ requirements:
 	else echo "---> MISSING requirements.txt file"; \
 	fi
 
-
-
+serial:
+	if [ ! -c $(SERIAL_DEV) ] ; \
+	then echo "---> ERROR: Serial Device not available, please set the SERIAL_DEV environment variable" ; \
+	else echo "---> Monitoring serial\n"; \
+	arduino-cli monitor -b $(FQBN) -p $(SERIAL_DEV) -c baudrate=$(SERIAL_BAUD) ; \
+	fi

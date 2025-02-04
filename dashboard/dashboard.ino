@@ -16,25 +16,30 @@ typedef struct struct_speedo {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
+    bool collector_is_dev;
 } struct_speedo;
 
 // Create a struct_message to hold incoming readings
-struct_speedo SpeedoData;
+struct_speedo collectorData;
 
 esp_now_peer_info_t peerInfo;
 
 // callback function that will be executed when data is received
 void OnDataRecv(const esp_now_recv_info* mac, const uint8_t *incomingData, int len) {
-  memcpy(&SpeedoData, incomingData, sizeof(SpeedoData));
+  memcpy(&collectorData, incomingData, sizeof(collectorData));
   Serial.print("Bytes received: ");
   Serial.println(len);
   Serial.print("Speed KPH: ");
-  Serial.println(SpeedoData.speed_kph);
+  Serial.println(collectorData.speed_kph);
   Serial.print("Speed RPM: ");
-  Serial.println(SpeedoData.speed_rpm);
+  Serial.println(collectorData.speed_rpm);
   Serial.print("Fuel Percentage: ");
-  Serial.println(SpeedoData.fuel_perc);
-  Serial.println();
+  Serial.println(collectorData.fuel_perc);
+  if (collectorData.collector_is_dev) {
+    Serial.println("esp32_bikedash version - development collector version");
+  } else {
+    Serial.println("esp32_bikedash version - collector version");
+  }
 }
  
 void setup() {

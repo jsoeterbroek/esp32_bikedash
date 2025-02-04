@@ -7,3 +7,4 @@ FQBN        ?= esp32:esp32:esp32
 #OTA_PORT   ?= 3232
 #OTA_PASS   ?=
 SERIAL_DEV  ?= /dev/ttyUSB0
+SERIAL_BAUD ?= 115200

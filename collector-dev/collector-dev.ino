@@ -1,12 +1,9 @@
 /*
- Collector
-  A = collector MAC: FC:B4:67:F6:90:E0
-  B = dashboard MAC: D8:BC:38:FA:D4:A4
 */
 #include <esp_now.h>
 #include <WiFi.h>
 
-// REPLACE WITH THE MAC Address of your receiver 
+// REPLACE WITH THE MAC Address of the receiver (dashboard)
 uint8_t broadcastAddress[] = {0xd8, 0xbc, 0x38, 0xfa, 0xd4, 0xa4};
 
 // Variable to store if sending data was successful
@@ -18,10 +15,11 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
+    bool collector_is_dev;
 } struct_message;
 
 // Create a struct_message to hold outgoing readings
-struct_message outgoingReadings;
+struct_message outgoingData;
 
 esp_now_peer_info_t peerInfo;
 
@@ -69,12 +67,13 @@ void setup() {
 void loop() {
  
   // Set values to send
-  outgoingReadings.speed_kph = 13;
-  outgoingReadings.speed_rpm = 12;
-  outgoingReadings.fuel_perc = 50;
+  outgoingData.speed_kph = 13;
+  outgoingData.speed_rpm = 12;
+  outgoingData.fuel_perc = 50;
+  outgoingData.collector_is_dev = true;
   
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingData, sizeof(outgoingData));
    
   if (result == ESP_OK) {
     Serial.println("Sent with success");

@@ -44,3 +44,4 @@
 
 ### comm, esp32 internals
 - led comm between esp32's, RED if not
+- collector_string
