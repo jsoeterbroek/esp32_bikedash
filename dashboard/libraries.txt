@@ -1,1 +1,3 @@
-lvgl@8.3.3
+TFT_eSPI@2.5.34
+XPT2046_Touchscreen@1.4
+lvgl@9.2.0
