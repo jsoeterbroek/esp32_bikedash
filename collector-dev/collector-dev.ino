@@ -4,7 +4,8 @@
 #include <WiFi.h>
 
 // REPLACE WITH THE MAC Address of the receiver (dashboard)
-uint8_t broadcastAddress[] = {0xd8, 0xbc, 0x38, 0xfa, 0xd4, 0xa4};
+// 1c:69:20:cd:4c:e8
+uint8_t broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
 
 // Variable to store if sending data was successful
 String success;

@@ -1,2 +1,2 @@
 A = collector MAC: FC:B4:67:F6:90:E0
-B = dashboard MAC: D8:BC:38:FA:D4:A4
+B = dashboard MAC: 1c:69:20:cd:4c:e8
