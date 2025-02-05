@@ -1,3 +1,4 @@
 binding/
 build/
 lvgl/
+*.bak
