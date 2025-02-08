@@ -1,7 +1,8 @@
 # ----- setup for ESP32 NodeMCU -----
 #
 # ESP32 Dev Module
-FQBN        ?= esp32:esp32:esp32
+#FQBN        ?= esp32:esp32:esp32
+FQBN        ?= esp32:esp32:esp32c6
 
 # ESP32 with TFT screen Esp32-2432S032C 
 # - 3.2 inch TFT-LCD Display 320*240
