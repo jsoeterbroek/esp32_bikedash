@@ -18,7 +18,7 @@
 // Created by Bodmer 17/3/20 as an example to the TFT_eSPI library:
 // https://github.com/Bodmer/TFT_eSPI
 
-#define NEEDLE_LENGTH 35  // Visible length
+#define NEEDLE_LENGTH 45  // Visible length
 #define NEEDLE_WIDTH   5  // Width of needle - make it an odd number
 #define NEEDLE_RADIUS 90  // Radius at tip
 #define NEEDLE_COLOR1 TFT_MAROON  // Needle periphery colour
