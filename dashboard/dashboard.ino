@@ -41,19 +41,35 @@ void setup(void)
     // gfx->setCursor(10, 10);
     // gfx->setTextColor(RED);
     // gfx->println("Setup complete...");
-    delay(5000); // 5 seconds
+    delay(1000); // 1 seconds
 }
 
-void loop()
-{
-    gfx->setCursor(20,20);
-    gfx->setTextColor(BLACK);
-    //gfx->setFont(&NotoSansBold36);
-    gfx->setFont(&FreeSansBold10pt7b);
-    gfx->println("70");
-    gfx->setCursor(20,35);
-    gfx->setTextColor(BLACK);
-    gfx->setFont(&FreeMono8pt7b);
-    gfx->println("km/h");
-    delay(2000); // 1 second
+void loop() {
+
+  gfx->setTextColor(RGB565_BLACK);
+
+
+  /*****************************************************************************
+   * Speed
+   ****************************************************************************/
+  gfx->drawRect(8, 10, 60, 40, RGB565_BLACK);
+  gfx->setCursor(14, 22);
+  gfx->setFont(&FreeMono8pt7b);
+  gfx->println("Speed");
+  gfx->setCursor(14, 42);
+  gfx->setFont(&FreeSansBold10pt7b);
+  gfx->println("  70");  
+
+  /*****************************************************************************
+   * RPM 
+   ****************************************************************************/
+  gfx->drawRect(8, 49, 60, 40, RGB565_BLACK);
+  gfx->setCursor(14, 62);
+  gfx->setFont(&FreeMono8pt7b);
+  gfx->println(" RPM");
+  gfx->setCursor(14, 82);
+  gfx->setFont(&FreeSansBold10pt7b);
+  gfx->println("  33");  
+
+  delay(2000); // 2 second
 }
