@@ -55,6 +55,7 @@ void drawscreen() {
   gfx->drawRect(113, 22, 102, 100, LIGHTGREY);
 
   // logo
+  gfx->setTextColor(DARKGREY);
   gfx->setCursor(44, 150);
   gfx->setFont(&FreeSansBold10pt7b);
   gfx->println("// BMW R1100 GS");  
@@ -92,14 +93,13 @@ void drawdata() {
   /*****************************************************************************
    * - 1 - Speed
    ****************************************************************************/
-  // gfx->setCursor(14, 20);
-  // gfx->setFont(&FreeMono8pt7b);
-  // gfx->println("Speed");
-  // gfx->setCursor(14, 40);
-  // gfx->setFont(&FreeSansBold10pt7b);
-  // gfx->println("  70");  
+  gfx->setFont(&FreeSerifBoldItalic12pt7b);
+  gfx->setTextColor(DARKGREY);
+  gfx->setCursor(48, 80);
+  gfx->println("56");  
   gfx->setCursor(40, 114);
   gfx->setFont(&FreeMono8pt7b);
+  gfx->setTextColor(LIGHTGREY);
   gfx->println("KM/h");
 
   /*****************************************************************************
@@ -109,32 +109,57 @@ void drawdata() {
   // gfx->setFont(&FreeSansBold10pt7b);
   // gfx->println("  33");  
   gfx->setCursor(148, 114);
+  gfx->setTextColor(LIGHTGREY);
   gfx->setFont(&FreeMono8pt7b);
   gfx->println("RPM");
+
+
+  /*****************************************************************************
+   * - 3 - LEFT INDICATOR 
+   ****************************************************************************/  
+  gfx->setFont(&FreeSansBold10pt7b);
+  gfx->setTextColor(LIGHTGREY);
+  gfx->setCursor(20, 200);
+  gfx->println("Li");
 
   /*****************************************************************************
    * - 6 - FUEL 
    ****************************************************************************/
-  //gfx->drawRect(8, 86, 60, 40, RGB565_BLACK);
-  // gfx->fillRect(9, 87, 58, 38, RGB565_ORANGE);
-  // gfx->setCursor(14, 100);
-  // gfx->setFont(&FreeMono8pt7b);
-  // gfx->println("FUEL");
-  // gfx->setCursor(14, 120);
-  // gfx->setFont(&FreeSansBold10pt7b);
-  // gfx->println(" 13%");  
+  gfx->setFont(&FreeSansBold10pt7b);
+  gfx->setTextColor(LIGHTGREY);
+  gfx->setCursor(88, 200);
+  gfx->println("F");
 
   // demo fuel warn
   gfx->fillRect(80, 165, 32, 58, ORANGE);
+  gfx->setTextColor(WHITE);
+  gfx->setCursor(88, 200);
+  gfx->println("F");
+
+  /*****************************************************************************
+   * - 7 - NEUTRAL INDIC
+   ****************************************************************************/
+  gfx->setFont(&FreeSansBold10pt7b);
+  gfx->setTextColor(LIGHTGREY);
+  gfx->setCursor(120, 200);
+  gfx->println("N");
 
   /*****************************************************************************
    * - 10 - RIGHT INDICATOR 
    ****************************************************************************/  
 
+  gfx->setFont(&FreeSansBold10pt7b);
+
   // demo right indic flashing
   gfx->fillRect(179, 165, 32, 58, GREEN);
+  gfx->setTextColor(WHITE);
+  gfx->setCursor(184, 200);
+  gfx->println("Ri");
   delay(1000); // 1 second
   gfx->fillRect(179, 165, 32, 58, WHITE);
+  gfx->setTextColor(LIGHTGREY);
+  gfx->setCursor(184, 200);
+  gfx->println("Ri");
 
 }
 
