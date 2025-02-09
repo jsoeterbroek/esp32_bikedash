@@ -1,7 +1,6 @@
 /*******************************************************************************
  ******************************************************************************/
 #include <Arduino_GFX_Library.h>
-// #include <NotoSansBold15.h>
 #include <FreeMono8pt7b.h>
 #include <FreeSansBold10pt7b.h>
 #include <FreeSerifBoldItalic12pt7b.h>
@@ -44,32 +43,53 @@ void setup(void)
     delay(1000); // 1 seconds
 }
 
-void loop() {
+
+void drawscreen() {
+  gfx->drawRect(8, 8, 60, 40, RGB565_BLACK);
+  gfx->drawRect(8, 47, 60, 40, RGB565_BLACK);
+  gfx->drawRect(8, 86, 60, 40, RGB565_BLACK);
+  gfx->drawRect(8, 125, 60, 40, RGB565_BLACK);
+}
+
+void drawdata() {
 
   gfx->setTextColor(RGB565_BLACK);
-
 
   /*****************************************************************************
    * Speed
    ****************************************************************************/
-  gfx->drawRect(8, 10, 60, 40, RGB565_BLACK);
-  gfx->setCursor(14, 22);
+  gfx->setCursor(14, 20);
   gfx->setFont(&FreeMono8pt7b);
   gfx->println("Speed");
-  gfx->setCursor(14, 42);
+  gfx->setCursor(14, 40);
   gfx->setFont(&FreeSansBold10pt7b);
   gfx->println("  70");  
 
   /*****************************************************************************
    * RPM 
    ****************************************************************************/
-  gfx->drawRect(8, 49, 60, 40, RGB565_BLACK);
-  gfx->setCursor(14, 62);
+  gfx->setCursor(14, 60);
   gfx->setFont(&FreeMono8pt7b);
   gfx->println(" RPM");
-  gfx->setCursor(14, 82);
+  gfx->setCursor(14, 80);
   gfx->setFont(&FreeSansBold10pt7b);
   gfx->println("  33");  
 
+  /*****************************************************************************
+   * FUEL 
+   ****************************************************************************/
+  //gfx->drawRect(8, 86, 60, 40, RGB565_BLACK);
+  gfx->fillRect(9, 87, 58, 38, RGB565_ORANGE);
+  gfx->setCursor(14, 100);
+  gfx->setFont(&FreeMono8pt7b);
+  gfx->println("FUEL");
+  gfx->setCursor(14, 120);
+  gfx->setFont(&FreeSansBold10pt7b);
+  gfx->println(" 13%");  
+}
+
+void loop() {
+  drawscreen();
+  drawdata();
   delay(2000); // 2 second
 }
