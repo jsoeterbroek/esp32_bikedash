@@ -1,0 +1,5 @@
+    // ledcSetup(0, 2000, 8);
+    // ledcAttachPin(TFT_BL, 0);
+    // ledcSetup(LEDC_CHANNEL, 50, LEDC_RESOLUTION); // Set frequency to 50Hz, resolution to 10 bits
+    // ledcAttachPin(LEDC_PIN, LEDC_CHANNEL); // Associate GPIO pin with LEDC channel
+    ledcAttach(0, 2000, 8);
