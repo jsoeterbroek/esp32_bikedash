@@ -1,170 +1,178 @@
 /*******************************************************************************
  ******************************************************************************/
-#include <Arduino_GFX_Library.h>
-#include <FreeMono8pt7b.h>
-#include <FreeSansBold10pt7b.h>
-#include <FreeSerifBoldItalic12pt7b.h>
+
+#include <SPI.h>
+#include <TFT_eSPI.h>
+// #include <NotoSansBold15.h>
+#include <NotoSansBold36.h>
+// #include <Free_Fonts.h>
+
+
 
 /*******************************************************************************
- * Start of Arduino_GFX setting
+ * Start of TFT_eSPI setting
  ******************************************************************************/
-#define GFX_BL DF_GFX_BL // default backlight pin, you may replace DF_GFX_BL to actual backlight pin
-#define TFT_BL 27
-/* More dev device declaration: https://github.com/moononournation/Arduino_GFX/wiki/Dev-Device-Declaration */
-#if defined(DISPLAY_DEV_KIT)
-Arduino_GFX *gfx = create_default_Arduino_GFX();
-#else /* !defined(DISPLAY_DEV_KIT) */
-
-/* More display class: https://github.com/moononournation/Arduino_GFX/wiki/Display-Class */
-Arduino_DataBus *bus = new Arduino_ESP32SPI(2 /* DC */, 15 /* CS */, 14 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
-Arduino_GFX *gfx = new Arduino_ST7789(bus, -1 /* RST */, 1 /* rotation */, true /* IPS */);
-
-#endif /* !defined(DISPLAY_DEV_KIT) */
+TFT_eSPI tft = TFT_eSPI(); // Create an instance of the display
+TFT_eSprite spr = TFT_eSprite(&tft);
+// #include <TFT_eSPI_Widgets.h>
+// using namespace TFT_eSPI_Widgets;
 /*******************************************************************************
- * End of Arduino_GFX setting
+ * End of TFT_eSPI setting
  ******************************************************************************/
 
+
+
+// colors
+#define MY_BACKCOLOR 0x0026
+#define MY_GAUGECOLOR 0x055D
+#define MY_DATACOLOR 0x0311
+#define MY_NEEDLECOLOR 0xF811
+#define MY_PURPLE 0xEA16
+
+// font stuff
+#define AA_FONT_LARGE NotoSansBold36
 
 void setup(void)
 {
-    gfx->begin();
-    gfx->fillScreen(WHITE);
+  // gfx->begin();
+  // gfx->fillScreen(WHITE);
 
-#ifdef TFT_BL
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH);
-    ledcAttach(0, 2000, 8);
-    ledcWrite(0, 255); /* Screen brightness can be modified by adjusting this parameter. (0-255) */
-#endif
+  pinMode(TFT_BL, OUTPUT);
+  digitalWrite(TFT_BL, HIGH);
+  ledcAttach(0, 2000, 8);
+  ledcWrite(0, 255); /* Screen brightness can be modified by adjusting this parameter. (0-255) */
 
-    // gfx->setCursor(10, 10);
-    // gfx->setTextColor(RED);
-    // gfx->println("Setup complete...");
-    delay(1000); // 1 seconds
+  tft.init();
+  tft.setRotation(1);
+  tft.fillScreen(TFT_WHITE);                    // Clear screen
+  delay(2000); // 2 seconds
 }
 
+void draw_screen() {
 
-void drawscreen() {
-  gfx->setFont(&FreeMono8pt7b);
-  gfx->drawRect(6, 6, 308, 230, LIGHTGREY);
+  //tft.loadFont(AA_FONT_LARGE);
+  tft.setTextDatum(MC_DATUM);                  // Set text datum to middle centre (MC_DATUM)
+  tft.setTextColor(TFT_BLACK);
+
+  // outer box
+  tft.drawRoundRect(6, 6, 306, 226, 10, TFT_LIGHTGREY);
+  // tft.fillRoundRect(6, 6, 306, 226, 10, TFT_LIGHTGREY);
+
+  tft.setCursor(100, 140);
+  tft.println(" // BMW R1100 GS ");
 
   // 1 speed 
-  gfx->drawRect(12, 22, 102, 100, LIGHTGREY);
+  tft.drawRoundRect(12, 22, 102, 100, 10, TFT_LIGHTGREY);
 
   // 2 RPM
-  gfx->drawRect(113, 22, 102, 100, LIGHTGREY);
-
-  // logo
-  gfx->setTextColor(DARKGREY);
-  gfx->setCursor(44, 150);
-  gfx->setFont(&FreeSansBold10pt7b);
-  gfx->println("// BMW R1100 GS");  
+  tft.drawRoundRect(116, 22, 102, 100, 10, TFT_LIGHTGREY);
 
   // 3 left indic
-  gfx->drawRect(13, 164, 34, 60, LIGHTGREY);
+  tft.drawRect(13, 164, 34, 60, TFT_LIGHTGREY);
 
   // 4 batt warn
-  gfx->drawRect(46, 164, 34, 30, LIGHTGREY);
+  tft.drawRect(46, 164, 34, 30, TFT_LIGHTGREY);
 
   // 5 high beam 
-  gfx->drawRect(46, 193, 34, 31, LIGHTGREY);
+  tft.drawRect(46, 193, 34, 31, TFT_LIGHTGREY);
 
   // 6 fuel warn
-  gfx->drawRect(79, 164, 34, 60, LIGHTGREY);
+  tft.drawRect(79, 164, 34, 60, TFT_LIGHTGREY);
 
   // 7 neutral warn
-  gfx->drawRect(112, 164, 34, 60, LIGHTGREY);
+  tft.drawRect(112, 164, 34, 60, TFT_LIGHTGREY);
 
   // 8 oil warn
-  gfx->drawRect(145, 164, 34, 30, LIGHTGREY);
+  tft.drawRect(145, 164, 34, 30, TFT_LIGHTGREY);
 
   // 9 free (ABS)
-  gfx->drawRect(145, 193, 34, 31, LIGHTGREY);
+  tft.drawRect(145, 193, 34, 31, TFT_LIGHTGREY);
 
   // 10 right indic
-  gfx->drawRect(178, 164, 34, 60, LIGHTGREY);
+  tft.drawRect(178, 164, 34, 60, TFT_LIGHTGREY);
 
+  //tft.unloadFont(); // Remove the font to recover memory used
 }
 
-void drawdata() {
-
-  gfx->setTextColor(RGB565_BLACK);
+void draw_data() {
 
   /*****************************************************************************
    * - 1 - Speed
    ****************************************************************************/
-  gfx->setFont(&FreeSerifBoldItalic12pt7b);
-  gfx->setTextColor(DARKGREY);
-  gfx->setCursor(48, 80);
-  gfx->println("56");  
-  gfx->setCursor(40, 114);
-  gfx->setFont(&FreeMono8pt7b);
-  gfx->setTextColor(LIGHTGREY);
-  gfx->println("KM/h");
+
+  spr.loadFont(AA_FONT_LARGE); // Must load the font first into the sprite class
+  spr.createSprite(60, 60);
+  spr.fillSprite(TFT_WHITE);
+  // spr.drawRect(0, 0, 60, 60, TFT_BLACK); // Draw sprite border outline (so we see extent)
+  spr.setTextColor(TFT_DARKGREY); // Set the sprite font colour
+  spr.setTextDatum(MC_DATUM); // Middle Centre datum
+  spr.drawString("15", 30, 30 ); // Coords of middle of 60 x 60 Sprite
+  spr.pushSprite(30, 40); // Push to TFT screen coord 10, 10
+  spr.unloadFont(); // Remove the font from sprite class to recover memory used
+
+  tft.setCursor(47, 100);
+  tft.println("KM/h");
 
   /*****************************************************************************
    * - 2 - RPM 
    ****************************************************************************/
-  // gfx->setCursor(14, 80);
-  // gfx->setFont(&FreeSansBold10pt7b);
-  // gfx->println("  33");  
-  gfx->setCursor(148, 114);
-  gfx->setTextColor(LIGHTGREY);
-  gfx->setFont(&FreeMono8pt7b);
-  gfx->println("RPM");
-
+  tft.setCursor(156, 100);
+  tft.println("RPM");
 
   /*****************************************************************************
    * - 3 - LEFT INDICATOR 
    ****************************************************************************/  
-  gfx->setFont(&FreeSansBold10pt7b);
-  gfx->setTextColor(LIGHTGREY);
-  gfx->setCursor(20, 200);
-  gfx->println("Li");
+  tft.setCursor(20, 200);
+  tft.println("Li");
+
+}
+
+
+
+void draw_gfx_data() {
+
 
   /*****************************************************************************
    * - 6 - FUEL 
    ****************************************************************************/
-  gfx->setFont(&FreeSansBold10pt7b);
-  gfx->setTextColor(LIGHTGREY);
-  gfx->setCursor(88, 200);
-  gfx->println("F");
+  // gfx->setTextColor(LIGHTGREY);
+  // gfx->setCursor(88, 200);
+  // gfx->println("F");
 
   // demo fuel warn
-  gfx->fillRect(80, 165, 32, 58, ORANGE);
-  gfx->setTextColor(WHITE);
-  gfx->setCursor(88, 200);
-  gfx->println("F");
+  // gfx->fillRect(80, 165, 32, 58, ORANGE);
+  // gfx->setTextColor(WHITE);
+  // gfx->setCursor(88, 200);
+  // gfx->println("F");
 
   /*****************************************************************************
    * - 7 - NEUTRAL INDIC
    ****************************************************************************/
-  gfx->setFont(&FreeSansBold10pt7b);
-  gfx->setTextColor(LIGHTGREY);
-  gfx->setCursor(120, 200);
-  gfx->println("N");
+  // gfx->setTextColor(LIGHTGREY);
+  // gfx->setCursor(120, 200);
+  // gfx->println("N");
 
   /*****************************************************************************
    * - 10 - RIGHT INDICATOR 
    ****************************************************************************/  
 
-  gfx->setFont(&FreeSansBold10pt7b);
 
   // demo right indic flashing
-  gfx->fillRect(179, 165, 32, 58, GREEN);
-  gfx->setTextColor(WHITE);
-  gfx->setCursor(184, 200);
-  gfx->println("Ri");
-  delay(1000); // 1 second
-  gfx->fillRect(179, 165, 32, 58, WHITE);
-  gfx->setTextColor(LIGHTGREY);
-  gfx->setCursor(184, 200);
-  gfx->println("Ri");
+  // gfx->fillRect(179, 165, 32, 58, GREEN);
+  // gfx->setTextColor(WHITE);
+  // gfx->setCursor(184, 200);
+  // gfx->println("Ri");
+  // delay(1000); // 1 second
+  // gfx->fillRect(179, 165, 32, 58, WHITE);
+  // gfx->setTextColor(LIGHTGREY);
+  // gfx->setCursor(184, 200);
+  // gfx->println("Ri");
 
 }
 
 void loop() {
-  drawscreen();
-  drawdata();
+  // draw_gfx_data();
+  draw_screen();
+  draw_data();
   delay(500); // 1/2 second
 }
