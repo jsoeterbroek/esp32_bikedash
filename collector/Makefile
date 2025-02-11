@@ -57,8 +57,7 @@
 #               it will be assigned the default value of 8266 in this
 #               makefile
 #
-#   OTA_PASS    Password used for OTA update; if not set in the environment
-#               it will be assigned the default value of an empty string
+#   OTA_PASS   
 #
 #   V           verbose flag; can be 0 (quiet) or 1 (verbose); if not set
 #               in the environment it will be assigned a default value
@@ -73,31 +72,8 @@ OSFAMILY    := $(shell ( uname | sed "s/-.*//" ))
 MAKE_DIR    := $(PWD)
 GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 #
-# in vars.mak usually some or all of the following variables are defined
-#    FQBN
-#    IOT_NAME
-#    OTA_PORT
-#    OTA_PASS
-#    SERIAL_DEV
 -include vars.mak
 
-#
-# ----- setup for ESP32 LilyGo T3 v 1.6.1
-#FQBN        ?= esp32:esp32:lilygo_t_display_s3
-
-# ----- setup wor Wemos D1 mini -----
-#FQBN       ?= esp8266:esp8266:d1_mini
-
-# ----- setup wor ESP32 NodeMCU -----
-#FQBN        ?= esp32:esp32:esp32
-
-# ----- setup for Arduino Uno
-FQBN        ?= arduino:avr:uno
-
-#IOT_NAME    ?= blink-arduino
-#OTA_PORT   ?= 3232
-#OTA_PASS   ?=
-#
 # --- Upload Speed Label: the "arduino-cli upload" command uses "baud" or UploadSpeed to specify
 #     the board upload speed, the following variable will heve the correct value
 #SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
@@ -116,7 +92,6 @@ ifeq "$(V)" "1"
 VFLAG      =-v
 endif
 
-
 ifndef SERIAL_DEV
   ifneq (,$(wildcard /dev/ttyUSB0))
     SERIAL_DEV = /dev/ttyUSB0
@@ -128,8 +103,6 @@ ifndef SERIAL_DEV
     SERIAL_DEV = unknown
   endif
 endif
-
-
 
 ifndef CUSTOM_LIBS
   ifneq (,$(wildcard libraries))
