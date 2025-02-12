@@ -2,8 +2,6 @@
 */
 #include <SPI.h>
 #include <Wire.h>
-// #include <Adafruit_GFX.h>
-// #include <SH1106.h>
 #include "U8g2lib.h"
 #include <esp_now.h>
 #include <WiFi.h>
@@ -24,10 +22,14 @@ uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 // start OLED display
 #define OLED_SDA 6
 #define OLED_SCL 7
+#define time_delay 2000
 
-U8G2_SH1106_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
-//U8G2_SH1106_128X64_NONAME_F_4W_HW_SPI u8g2(U8G2_R0, /* cs=*/ 7, /* dc=*/ 6);
+U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 7, 6, U8X8_PIN_NONE);
 // end OLED display
+
+bool SETUP_OK = false;
+bool ESP_SETUP_OK = false;
+bool ESP_SEND_OK = false;
 
 // Variable to store if sending data was successful
 String success;
@@ -51,8 +53,8 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
   if (status ==0){
     success = "Delivery Success :)";
-  }
-  else{
+    ESP_SEND_OK = true;
+  } else{
     success = "Delivery Fail :(";
   }
 }
@@ -72,7 +74,6 @@ void setup() {
   // initialize OLED
   u8g2.begin();
   u8g2_prepare();
-  delay(2000);
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -81,6 +82,8 @@ void setup() {
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
     return;
+  } else {
+    ESP_SETUP_OK = true;
   }
 
   // Once ESPNow is successfully Init, we will register for Send CB to
@@ -97,28 +100,60 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
+
+  // output OLED
+  u8g2.setCursor(0, 0);
+  u8g2.print("// BMW R1100GS data");
+  u8g2.setCursor(0, 10);
+  u8g2.print("   collector setup..");
+  u8g2.sendBuffer();
+  delay(5000);
 }
  
 void loop() {
  
   // Set values to send
-  outgoingReadings.speed_kph = 13;
-  outgoingReadings.speed_rpm = 12;
-  outgoingReadings.fuel_perc = 50;
+  // outgoingReadings.speed_kph = 13;
+  // outgoingReadings.speed_rpm = 12;
+  // outgoingReadings.fuel_perc = 50;
   
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
    
-  if (result == ESP_OK) {
-    Serial.println("Sent with success");
-  } else {
-    Serial.println("Error sending the data");
-  }
+  // if (result == ESP_OK) {
+  //   Serial.println("Sent with success");
+  // } else {
+  //   Serial.println("Error sending the data");
+  // }
 
   // display status on LCD
-    u8g2.clearBuffer();
-    u8g2_prepare();
-    u8g2.setCursor(0, 0);
-    u8g2.print("ESP_OK");
+
+  u8g2.clearBuffer();
+  u8g2_prepare();
+
+  // display setup status
+  u8g2.setCursor(0, 0);
+  if (SETUP_OK) {
+    u8g2.print("SETUP_OK");
+  } else {
+    u8g2.print("SETUP_NOK");
+  }
+  // display ESP setup status
+  u8g2.setCursor(0, 10);
+  if (ESP_SETUP_OK) {
+    u8g2.print("ESP_SETUP_OK");
+  } else {
+    u8g2.print("ESP_SETUP_NOK");
+  }
+  // display ESP send status
+  u8g2.setCursor(0, 20);
+  if (ESP_SEND_OK) {
+    u8g2.print("ESP_SEND_OK");
+  } else {
+    u8g2.print("ESP_SEND_NOK");
+  }
+
+  u8g2.sendBuffer();
+  delay(2000);
 
 }
