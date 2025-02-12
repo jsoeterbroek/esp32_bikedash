@@ -138,47 +138,74 @@ void loop() {
   u8g2.clearBuffer();
   u8g2_prepare();
 
+  u8g2.setFontMode(1);  /* activate transparent font mode */
+  // TEMP_OK = true;
+
   // display setup status
   // display ESP setup status
   u8g2.setCursor(0, 0);
+  u8g2.setDrawColor(2);
   if (ESP_SETUP_OK) {
     u8g2.print("ESP_SETUP_OK");
   } else {
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0, 0, 45, 10);
+    u8g2.setDrawColor(2);
     u8g2.print("ESP_SETUP_NOK");
   }
   // display ESP send status
   u8g2.setCursor(0, 10);
+  u8g2.setDrawColor(2);
   if (ESP_SEND_OK) {
     u8g2.print("ESP_SEND_OK");
   } else {
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0, 10, 80, 10);
+    u8g2.setDrawColor(2);    
     u8g2.print("ESP_SEND_NOK");
   }
   // display GPS status
   u8g2.setCursor(0, 20);
+  u8g2.setDrawColor(2);
   if (GPS_OK) {
     u8g2.print("GPS_OK");
   } else {
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0, 20, 80, 10);
+    u8g2.setDrawColor(2);
     u8g2.print("GPS_NOK");
   }
   // display GSM status
   u8g2.setCursor(0, 30);
+  u8g2.setDrawColor(2);
   if (GSM_OK) {
     u8g2.print("GSM_OK");
   } else {
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0, 30, 80, 10);
+    u8g2.setDrawColor(2);
     u8g2.print("GSM_NOK");
   }
   // display TEMPstatus
   u8g2.setCursor(0, 40);
+  u8g2.setDrawColor(2);
   if (TEMP_OK) {
     u8g2.print("TEMP_OK");
   } else {
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0, 40, 80, 10);
+    u8g2.setDrawColor(2);    
     u8g2.print("TEMP_NOK");
   }
   // display BATT status
   u8g2.setCursor(0, 50);
+  u8g2.setDrawColor(2);
   if (BATT_OK) {
     u8g2.print("BATT_OK");
   } else {
+    u8g2.setDrawColor(1);
+    u8g2.drawBox(0, 50, 80, 10);
+    u8g2.setDrawColor(2);    
     u8g2.print("BATT_NOK");
   }
 
