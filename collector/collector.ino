@@ -151,7 +151,7 @@ void loop() {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 0, 45, 10);
     u8g2.setDrawColor(2);
-    u8g2.print("ESP_SETUP_NOK");
+    u8g2.print(" ESP_SETUP_NOK");
   }
   // display ESP send status
   u8g2.setCursor(0, 10);
@@ -162,7 +162,7 @@ void loop() {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 10, 80, 10);
     u8g2.setDrawColor(2);    
-    u8g2.print("ESP_SEND_NOK");
+    u8g2.print(" ESP_SEND_NOK");
   }
   // display GPS status
   u8g2.setCursor(0, 20);
@@ -173,7 +173,7 @@ void loop() {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 20, 80, 10);
     u8g2.setDrawColor(2);
-    u8g2.print("GPS_NOK");
+    u8g2.print(" GPS_NOK");
   }
   // display GSM status
   u8g2.setCursor(0, 30);
@@ -184,7 +184,7 @@ void loop() {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 30, 80, 10);
     u8g2.setDrawColor(2);
-    u8g2.print("GSM_NOK");
+    u8g2.print(" GSM_NOK");
   }
   // display TEMPstatus
   u8g2.setCursor(0, 40);
@@ -195,7 +195,7 @@ void loop() {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 40, 80, 10);
     u8g2.setDrawColor(2);    
-    u8g2.print("TEMP_NOK");
+    u8g2.print(" TEMP_NOK");
   }
   // display BATT status
   u8g2.setCursor(0, 50);
@@ -206,7 +206,7 @@ void loop() {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 50, 80, 10);
     u8g2.setDrawColor(2);    
-    u8g2.print("BATT_NOK");
+    u8g2.print(" BATT_NOK");
   }
 
   u8g2.sendBuffer();
