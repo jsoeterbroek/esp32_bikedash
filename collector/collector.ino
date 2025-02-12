@@ -30,6 +30,10 @@ U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 7, 6, U8X8_PIN_NONE);
 bool SETUP_OK = false;
 bool ESP_SETUP_OK = false;
 bool ESP_SEND_OK = false;
+bool GPS_OK = false;
+bool GSM_OK = false;
+bool TEMP_OK = false;
+bool BATT_OK = false;
 
 // Variable to store if sending data was successful
 String success;
@@ -103,11 +107,14 @@ void setup() {
 
   // output OLED
   u8g2.setCursor(0, 0);
-  u8g2.print("// BMW R1100GS data");
+  u8g2.print("// BMW R1100GS");
   u8g2.setCursor(0, 10);
-  u8g2.print("   collector setup..");
+  u8g2.print("   data collector");
+  u8g2.setCursor(0, 20);
+  u8g2.print("   setup..");
   u8g2.sendBuffer();
   delay(5000);
+  SETUP_OK = true;
 }
  
 void loop() {
@@ -132,25 +139,47 @@ void loop() {
   u8g2_prepare();
 
   // display setup status
-  u8g2.setCursor(0, 0);
-  if (SETUP_OK) {
-    u8g2.print("SETUP_OK");
-  } else {
-    u8g2.print("SETUP_NOK");
-  }
   // display ESP setup status
-  u8g2.setCursor(0, 10);
+  u8g2.setCursor(0, 0);
   if (ESP_SETUP_OK) {
     u8g2.print("ESP_SETUP_OK");
   } else {
     u8g2.print("ESP_SETUP_NOK");
   }
   // display ESP send status
-  u8g2.setCursor(0, 20);
+  u8g2.setCursor(0, 10);
   if (ESP_SEND_OK) {
     u8g2.print("ESP_SEND_OK");
   } else {
     u8g2.print("ESP_SEND_NOK");
+  }
+  // display GPS status
+  u8g2.setCursor(0, 20);
+  if (GPS_OK) {
+    u8g2.print("GPS_OK");
+  } else {
+    u8g2.print("GPS_NOK");
+  }
+  // display GSM status
+  u8g2.setCursor(0, 30);
+  if (GSM_OK) {
+    u8g2.print("GSM_OK");
+  } else {
+    u8g2.print("GSM_NOK");
+  }
+  // display TEMPstatus
+  u8g2.setCursor(0, 40);
+  if (TEMP_OK) {
+    u8g2.print("TEMP_OK");
+  } else {
+    u8g2.print("TEMP_NOK");
+  }
+  // display BATT status
+  u8g2.setCursor(0, 50);
+  if (BATT_OK) {
+    u8g2.print("BATT_OK");
+  } else {
+    u8g2.print("BATT_NOK");
   }
 
   u8g2.sendBuffer();
