@@ -1,8 +1,12 @@
 /*
 */
+#include <math.h>
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
 #include <SPI.h>
 #include <Wire.h>
-#include "U8g2lib.h"
+#include <U8g2lib.h>
 #include <esp_now.h>
 #include <WiFi.h>
 
@@ -19,6 +23,9 @@ uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 // SDA  ---> LP_I2C_SDA  ->  pin 6
 // SCL  ---> LP_I2C_SCL  ->  pin 7
 
+// Temp module (ASAIR AM2301A)
+//   (DATA) to a digital GPIO pin on the ESP32 (e.g., GPIO 4).
+
 // start OLED display
 #define OLED_SDA 6
 #define OLED_SCL 7
@@ -26,6 +33,13 @@ uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 7, 6, U8X8_PIN_NONE);
 // end OLED display
+
+// start Temp sensor
+#define DHTPIN 4       // Digital pin connected to the DHT sensor
+#define DHTTYPE DHT21  // DHT 21 (AM2301)
+DHT_Unified dht(DHTPIN, DHTTYPE);
+uint32_t delayMS;
+// end Temp sensor
 
 bool SETUP_OK = false;
 bool ESP_SETUP_OK = false;
@@ -44,6 +58,8 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
+    int8_t temp;
+    int8_t humi;
 } struct_message;
 
 // Create a struct_message to hold outgoing readings
@@ -70,6 +86,8 @@ void u8g2_prepare() {
   u8g2.setFontPosTop();
   u8g2.setFontDirection(0);
 }
+
+
 
 void setup() {
   // Init Serial Monitor
@@ -105,6 +123,24 @@ void setup() {
     return;
   }
 
+  // setup temp sensor
+  dht.begin();
+  sensor_t sensor;
+  dht.temperature().getSensor(&sensor);
+  Serial.println(F("------------------------------------"));
+  Serial.println(F("Temperature Sensor"));
+  Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
+  Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
+  Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
+  Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));
+  Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
+  Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
+  Serial.println(F("------------------------------------"));
+
+  // Set delay between sensor readings based on sensor details.
+  delayMS = sensor.min_delay / 1000;
+  // delayMS = sensor.min_delay / 500;
+
   // output OLED
   u8g2.setCursor(0, 0);
   u8g2.print("// BMW R1100GS");
@@ -113,35 +149,16 @@ void setup() {
   u8g2.setCursor(0, 20);
   u8g2.print("   setup..");
   u8g2.sendBuffer();
-  delay(5000);
+  delay(10000);
   SETUP_OK = true;
 }
- 
-void loop() {
- 
-  // Set values to send
-  // outgoingReadings.speed_kph = 13;
-  // outgoingReadings.speed_rpm = 12;
-  // outgoingReadings.fuel_perc = 50;
-  
-  // Send message via ESP-NOW
-  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
-   
-  // if (result == ESP_OK) {
-  //   Serial.println("Sent with success");
-  // } else {
-  //   Serial.println("Error sending the data");
-  // }
 
+void display_status_lcd() {
   // display status on LCD
-
   u8g2.clearBuffer();
   u8g2_prepare();
-
   u8g2.setFontMode(1);  /* activate transparent font mode */
-  // TEMP_OK = true;
 
-  // display setup status
   // display ESP setup status
   u8g2.setCursor(0, 0);
   u8g2.setDrawColor(2);
@@ -190,7 +207,7 @@ void loop() {
   u8g2.setCursor(0, 40);
   u8g2.setDrawColor(2);
   if (TEMP_OK) {
-    u8g2.print("TEMP_OK");
+    u8g2.print("TEMP_OK ");
   } else {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 40, 80, 10);
@@ -208,8 +225,41 @@ void loop() {
     u8g2.setDrawColor(2);    
     u8g2.print(" BATT_NOK");
   }
-
   u8g2.sendBuffer();
-  delay(2000);
-
 }
+ 
+void loop() {
+ 
+  delay(delayMS);
+  // Get temperature event and print its value.
+  sensors_event_t event;
+  dht.temperature().getEvent(&event);
+  if (isnan(event.temperature)) {
+    Serial.println(F("Error reading temperature!"));
+    TEMP_OK = false;
+  }
+  else {
+    Serial.print(F("Temperature: "));
+    Serial.print(event.temperature);
+    Serial.println(F(" °C"));    
+    TEMP_OK = true;
+  }
+
+  // Set values to send
+  // outgoingReadings.speed_kph = 13;
+  // outgoingReadings.speed_rpm = 12;
+  // outgoingReadings.fuel_perc = 50;
+  
+  // Send message via ESP-NOW
+  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+   
+  // if (result == ESP_OK) {
+  //   Serial.println("Sent with success");
+  // } else {
+  //   Serial.println("Error sending the data");
+  // }
+
+  display_status_lcd();
+  delay(6000);
+}
+
