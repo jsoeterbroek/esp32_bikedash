@@ -3,7 +3,6 @@
 #include <math.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
-#include <DHT_U.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <U8g2lib.h>
@@ -51,7 +50,7 @@ U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 7, 6, U8X8_PIN_NONE);
 // start Temp sensor
 #define DHTPIN 4       // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT21  // DHT 21 (AM2301)
-DHT_Unified dht(DHTPIN, DHTTYPE);
+DHT dht(DHTPIN, DHTTYPE);
 // Reading temperature or humidity takes about 250 milliseconds!
 // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
 uint32_t delayMS;
@@ -147,22 +146,6 @@ void setup() {
 
   // setup temp sensor
   dht.begin();
-  sensor_t sensor;
-  dht.temperature().getSensor(&sensor);
-  Serial.println(F("------------------------------------"));
-  Serial.println(F("Temperature Sensor"));
-  Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-  Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-  Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-  Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));
-  Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
-  Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
-  Serial.println(F("------------------------------------"));
-
-  // Set delay between sensor readings based on sensor details.
-  // Reading temperature or humidity takes about 250 milliseconds!
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  delayMS = sensor.min_delay / 1000;
 
   // output OLED
   u8g2.setCursor(0, 0);
@@ -256,23 +239,25 @@ void display_status_lcd() {
  
 void loop() {
  
-  delay(delayMS);
   Serial.println(F("*----------------------------------------*"));
   // Get temperature event and print its value.
-  sensors_event_t event;
-  dht.temperature().getEvent(&event);
-  if (isnan(event.temperature)) {
-    Serial.println(F("Error reading temperature!"));
+  float h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature();
+
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
     TEMP_OK = false;
-  }
-  else {
-    Serial.print(F("Temperature: "));
-    Serial.print(event.temperature);
-    Serial.println(F(" °C"));
-    outgoingReadings.temp = round(event.temperature);
-    Serial.println(outgoingReadings.temp);
+  } else {
     TEMP_OK = true;
   }
+  Serial.print(F("humidty: "));
+  Serial.println(h);
+  Serial.print(F("Temperature: "));
+  Serial.println(t);
+  outgoingReadings.hum = h;
+  outgoingReadings.temp = t;
 
   // Display GPS information every time a new sentence is correctly encoded.
   while (ss.available() > 0) {
