@@ -12,9 +12,10 @@
 #include <TinyGPSPlus.h>
 
 // REPLACE WITH THE MAC Address of your receiver (dashboard)
-uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+// ESP-2432S032 1c:69:20:cd:4c:e8
+uint8_t broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
 // ESP32-WROOM-32 devkit - d8:bc:38:fa:d4:a4
-uint8_t receiver_temp_mac[] = {0xd8, 0xbc, 0x38, 0xfa, 0xd4, 0xa4};
+// uint8_t receiver_temp_mac[] = {0xd8, 0xbc, 0x38, 0xfa, 0xd4, 0xa4};
 
 
 // PINOUTS
@@ -134,7 +135,7 @@ void setup() {
   esp_now_register_send_cb(OnDataSent);
   
   // Register peer
-  memcpy(peerInfo.peer_addr, receiver_temp_mac, 6);
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
   
@@ -276,7 +277,7 @@ void loop() {
   outgoingReadings.fuel_perc = 50;
   
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(receiver_temp_mac, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
    
   if (result == ESP_OK) {
     Serial.println("Sent with success");
