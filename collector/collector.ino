@@ -9,9 +9,13 @@
 #include <U8g2lib.h>
 #include <esp_now.h>
 #include <WiFi.h>
+#include <SoftwareSerial.h>
+#include <TinyGPSPlus.h>
 
 // REPLACE WITH THE MAC Address of your receiver (dashboard)
 uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+// ESP32-WROOM-32 devkit - d8:bc:38:fa:d4:a4
+uint8_t receiver_temp_mac[] = {0xd8, 0xbc, 0x38, 0xfa, 0xd4, 0xa4};
 
 
 // PINOUTS
@@ -19,12 +23,22 @@ uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 // LCD oled display
 //  I2C
 // VCC  ---> 3V3, 
-// GND  ---> GND, 
+// GND  ---> GND 
 // SDA  ---> LP_I2C_SDA  ->  pin 6
 // SCL  ---> LP_I2C_SCL  ->  pin 7
-
+//
 // Temp module (ASAIR AM2301A)
-//   (DATA) to a digital GPIO pin on the ESP32 (e.g., GPIO 4).
+// VCC  ---> 5V
+// GND  ---> GND
+// (DATA) to a digital GPIO pin 4
+//
+// GPS module (neo-6m)
+// VCC  ---> 5V
+// GND  ---> GND
+// RX   ---> software serial RX -> pin 1
+// TX   ---> software serial TX -> pin 0
+// pins 4(rx) and 3(tx).
+
 
 // start OLED display
 #define OLED_SDA 6
@@ -38,6 +52,8 @@ U8G2_SH1106_128X64_NONAME_F_SW_I2C u8g2(U8G2_R0, 7, 6, U8X8_PIN_NONE);
 #define DHTPIN 4       // Digital pin connected to the DHT sensor
 #define DHTTYPE DHT21  // DHT 21 (AM2301)
 DHT_Unified dht(DHTPIN, DHTTYPE);
+// Reading temperature or humidity takes about 250 milliseconds!
+// Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
 uint32_t delayMS;
 // end Temp sensor
 
@@ -59,7 +75,6 @@ typedef struct struct_message {
     uint8_t speed_rpm;
     int8_t fuel_perc;
     int8_t temp;
-    int8_t humi;
 } struct_message;
 
 // Create a struct_message to hold outgoing readings
@@ -87,7 +102,11 @@ void u8g2_prepare() {
   u8g2.setFontDirection(0);
 }
 
-
+static const int RXPin = 1, TXPin = 0;
+static const uint32_t GPSBaud = 4800;
+// The TinyGPSPlus object
+TinyGPSPlus gps;
+SoftwareSerial ss(RXPin, TXPin);
 
 void setup() {
   // Init Serial Monitor
@@ -113,7 +132,7 @@ void setup() {
   esp_now_register_send_cb(OnDataSent);
   
   // Register peer
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  memcpy(peerInfo.peer_addr, receiver_temp_mac, 6);
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
   
@@ -138,8 +157,9 @@ void setup() {
   Serial.println(F("------------------------------------"));
 
   // Set delay between sensor readings based on sensor details.
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   delayMS = sensor.min_delay / 1000;
-  // delayMS = sensor.min_delay / 500;
 
   // output OLED
   u8g2.setCursor(0, 0);
@@ -151,6 +171,9 @@ void setup() {
   u8g2.sendBuffer();
   delay(10000);
   SETUP_OK = true;
+
+  // serial to GPS
+  ss.begin(GPSBaud);
 }
 
 void display_status_lcd() {
@@ -231,6 +254,7 @@ void display_status_lcd() {
 void loop() {
  
   delay(delayMS);
+  Serial.println(F("*----------------------------------------*"));
   // Get temperature event and print its value.
   sensors_event_t event;
   dht.temperature().getEvent(&event);
@@ -245,21 +269,70 @@ void loop() {
     TEMP_OK = true;
   }
 
+  // Display GPS information every time a new sentence is correctly encoded.
+  while (ss.available() > 0) {
+    if (gps.encode(ss.read())) {
+      displayGPSInfo();
+      GPS_OK = true;
+    }
+  }
+
+  if (millis() > 5000 && gps.charsProcessed() < 10) {
+    Serial.println(F("No GPS detected: check wiring."));
+  }
   // Set values to send
   // outgoingReadings.speed_kph = 13;
   // outgoingReadings.speed_rpm = 12;
   // outgoingReadings.fuel_perc = 50;
   
   // Send message via ESP-NOW
-  // esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+  esp_err_t result = esp_now_send(receiver_temp_mac, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
    
-  // if (result == ESP_OK) {
-  //   Serial.println("Sent with success");
-  // } else {
-  //   Serial.println("Error sending the data");
-  // }
+  if (result == ESP_OK) {
+    Serial.println("Sent with success");
+    ESP_SEND_OK = true;
+  } else {
+     Serial.println("Error sending the data");
+  }
 
   display_status_lcd();
   delay(6000);
 }
 
+void displayGPSInfo() {
+  Serial.print(F("Location: ")); 
+  if (gps.location.isValid()) {
+    Serial.print(gps.location.lat(), 6);
+    Serial.print(F(","));
+    Serial.print(gps.location.lng(), 6);
+  } else {
+    Serial.print(F("INVALID"));
+  }
+  Serial.print(F("  Date/Time: "));
+  if (gps.date.isValid()) {
+    Serial.print(gps.date.month());
+    Serial.print(F("/"));
+    Serial.print(gps.date.day());
+    Serial.print(F("/"));
+    Serial.print(gps.date.year());
+  } else {
+    Serial.print(F("INVALID"));
+  }
+  Serial.print(F(" "));
+  if (gps.time.isValid()) {
+    if (gps.time.hour() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.hour());
+    Serial.print(F(":"));
+    if (gps.time.minute() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.minute());
+    Serial.print(F(":"));
+    if (gps.time.second() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.second());
+    Serial.print(F("."));
+    if (gps.time.centisecond() < 10) Serial.print(F("0"));
+    Serial.print(gps.time.centisecond());
+  } else {
+    Serial.print(F("INVALID"));
+  }
+  Serial.println();
+}
