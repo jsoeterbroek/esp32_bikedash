@@ -71,10 +71,13 @@ String success;
 //Structure example to send data
 //Must match the receiver structure
 typedef struct struct_message {
+    int id;
+    float temp;
+    float hum;
+    unsigned int readingId;
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
-    int8_t temp;
 } struct_message;
 
 // Create a struct_message to hold outgoing readings
@@ -265,7 +268,9 @@ void loop() {
   else {
     Serial.print(F("Temperature: "));
     Serial.print(event.temperature);
-    Serial.println(F(" °C"));    
+    Serial.println(F(" °C"));
+    outgoingReadings.temp = round(event.temperature);
+    Serial.println(outgoingReadings.temp);
     TEMP_OK = true;
   }
 
@@ -281,22 +286,21 @@ void loop() {
     Serial.println(F("No GPS detected: check wiring."));
   }
   // Set values to send
-  // outgoingReadings.speed_kph = 13;
-  // outgoingReadings.speed_rpm = 12;
-  // outgoingReadings.fuel_perc = 50;
+  outgoingReadings.speed_kph = 13;
+  outgoingReadings.speed_rpm = 12;
+  outgoingReadings.fuel_perc = 50;
   
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(receiver_temp_mac, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
    
   if (result == ESP_OK) {
     Serial.println("Sent with success");
-    ESP_SEND_OK = true;
   } else {
      Serial.println("Error sending the data");
   }
 
   display_status_lcd();
-  delay(6000);
+  delay(8000);
 }
 
 void displayGPSInfo() {
