@@ -3,30 +3,30 @@
 #include <SPI.h>
 #include <esp_now.h>
 #include <WiFi.h>
-#include <Arduino_GFX_Library.h>
-// #include <NotoSansBold15.h>
-#include <FreeMono8pt7b.h>
-#include <FreeSansBold10pt7b.h>
-#include <FreeSerifBoldItalic12pt7b.h>
+#include <TFT_eSPI.h>
+#include "Free_Fonts.h" // Include the header file attached to this sketch
 
-/*******************************************************************************
- * Start of Arduino_GFX setting
- ******************************************************************************/
-#define GFX_BL DF_GFX_BL // default backlight pin, you may replace DF_GFX_BL to actual backlight pin
-#define TFT_BL 27
-/* More dev device declaration: https://github.com/moononournation/Arduino_GFX/wiki/Dev-Device-Declaration */
-#if defined(DISPLAY_DEV_KIT)
-Arduino_GFX *gfx = create_default_Arduino_GFX();
-#else /* !defined(DISPLAY_DEV_KIT) */
+//       An abbreviation of the font name. Look at the list below to see
+//       the abbreviations used, for example:
+//
+//       tft.setFreeFont(FSSBO24)
+//
+//       Where the letters mean:
+//       F = Free font
+//       M = Mono
+//      SS = Sans Serif (double S to distinguish is form serif fonts)
+//       S = Serif
+//       B = Bold
+//       O = Oblique (letter O not zero)
+//       I = Italic
+//       # =  point size, either 9, 12, 18 or 24
 
-/* More display class: https://github.com/moononournation/Arduino_GFX/wiki/Display-Class */
-Arduino_DataBus *bus = new Arduino_ESP32SPI(2 /* DC */, 15 /* CS */, 14 /* SCK */, 13 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
-Arduino_GFX *gfx = new Arduino_ST7789(bus, -1 /* RST */, 1 /* rotation */, true /* IPS */);
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 320
+#define TFT_GREY 0x5AEB
 
-#endif /* !defined(DISPLAY_DEV_KIT) */
-/*******************************************************************************
- * End of Arduino_GFX setting
- ******************************************************************************/
+TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
+#define TEXT "aA MWyz~1298" // Text that will be printed on screen in any font
 
 //Structure example to send data
 //Must match the receiver structure
@@ -55,79 +55,51 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 }
 
 void setup() {
-    //Initialize Serial Monitor
-    Serial.begin(115200);
 
-    //Set device as a Wi-Fi Station
-    WiFi.mode(WIFI_STA);
+  tft.init();
+  tft.setRotation(1);
+  
+  tft.fillScreen(TFT_WHITE);
+  // tft.fillCircle(120, 120, 110, TFT_BLACK);
 
-    //Init ESP-NOW
-    if (esp_now_init() != ESP_OK) {
-        Serial.println("Error initializing ESP-NOW");
-        return;
-    }
+  //Initialize Serial Monitor
+  Serial.begin(115200);
 
-    // Once ESPNow is successfully Init, we will register for recv CB to
-    // get recv packer info
-    esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+  //Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
 
-    gfx->begin();
-    gfx->fillScreen(WHITE);
+  //Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
 
-#ifdef TFT_BL
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH);
-    ledcAttach(0, 2000, 8);
-    ledcWrite(0, 255); /* Screen brightness can be modified by adjusting this parameter. (0-255) */
-#endif
+  // Once ESPNow is successfully Init, we will register for recv CB to
+  // get recv packer info
+  esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
-    // gfx->setCursor(10, 10);
-    // gfx->setTextColor(RED);
-    // gfx->println("Setup complete...");
-    delay(1000); // 1 seconds
+  delay(2000); // 2 seconds
 }
 
 void loop() {
-    gfx->fillScreen(WHITE);
-    draw();
-    gfx->flush();
-    delay(2000);
+
+  draw();
+  delay(1000);
 }
 
 void draw() {
 
-    gfx->setTextColor(RGB565_BLACK);
+  tft.fillScreen(TFT_GREY);            // Clear screen
+  tft.setTextColor(TFT_WHITE);
+  /*****************************************************************************
+   * Temp 
+   ****************************************************************************/
+  char str_temp[50]; sprintf(str_temp, "%g" ,myData.temp);
+  tft.drawRect(4, 80, 82, 72, TFT_WHITE);
+  tft.setFreeFont(FSSBO18);
+  tft.drawString(str_temp, 10, 90, GFXFF);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Temp", 12, 130, GFXFF);
 
-    /*****************************************************************************
-     * Speed
-     ****************************************************************************/
-    gfx->drawRect(8, 10, 60, 40, RGB565_BLACK);
-    gfx->setCursor(14, 22);
-    gfx->setFont(&FreeMono8pt7b);
-    gfx->println("Speed");
-    gfx->setCursor(14, 42);
-    gfx->setFont(&FreeSansBold10pt7b);
-    gfx->println("  70");  
-
-    /*****************************************************************************
-     * RPM 
-     ****************************************************************************/
-    gfx->drawRect(8, 49, 60, 40, RGB565_BLACK);
-    gfx->setCursor(14, 62);
-    gfx->setFont(&FreeMono8pt7b);
-    gfx->println(" RPM");
-    gfx->setCursor(14, 82);
-    gfx->setFont(&FreeSansBold10pt7b);
-    gfx->println("  33");  
-
-    /*****************************************************************************
-     * Temp 
-     ****************************************************************************/
-    gfx->drawRect(8, 88, 60, 40, RGB565_BLACK);
-    gfx->setCursor(14, 102);
-    gfx->setFont(&FreeMono8pt7b);
-    gfx->println(" Temp");
-    gfx->setCursor(14, 122);
-    gfx->setFont(&FreeSansBold10pt7b);
-    gfx->println(myData.temp);  
+  delay(1000);
 }
