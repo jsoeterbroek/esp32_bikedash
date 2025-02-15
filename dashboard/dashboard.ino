@@ -25,8 +25,7 @@
 #define SCREEN_HEIGHT 320
 #define TFT_GREY 0x5AEB
 
-TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
-#define TEXT "aA MWyz~1298" // Text that will be printed on screen in any font
+TFT_eSPI tft = TFT_eSPI();
 
 //Structure example to send data
 //Must match the receiver structure
@@ -43,6 +42,11 @@ typedef struct struct_message {
 // Create a struct_message to hold incoming data
 struct_message myData;
 
+// ESPNow checks
+volatile bool data_ready = false;
+bool startup_ready = false;
+bool startup_complete = false;
+
 //callback function that will be executed when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
@@ -52,6 +56,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(myData.temp);  
   Serial.print("hum: ");
   Serial.println(myData.hum);
+  data_ready = true;
 }
 
 void setup() {
@@ -60,7 +65,6 @@ void setup() {
   tft.setRotation(1);
   
   tft.fillScreen(TFT_WHITE);
-  // tft.fillCircle(120, 120, 110, TFT_BLACK);
 
   //Initialize Serial Monitor
   Serial.begin(115200);
@@ -78,12 +82,27 @@ void setup() {
   // get recv packer info
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
-  delay(2000); // 2 seconds
+  tft.drawString("Setup OK..", 6, 4, GFXFF);
+  delay(8000); // 8 seconds
+  if (data_ready) {
+    tft.drawString("Data Ready..", 6, 14, GFXFF);
+  }
+  delay(1000); // 1 seconds
 }
 
 void loop() {
 
-  draw();
+  // if (startup_ready && !startup_complete) {
+  //     delay(120);
+  //     start_splash();
+  //     startup_ready = false;
+  //  }
+
+  if (data_ready) {
+    draw();
+    data_ready = false;
+  }
+
   delay(1000);
 }
 
@@ -95,10 +114,22 @@ void draw() {
   tft.setTextColor(TFT_WHITE);
 
   /*****************************************************************************
+   * Time 
+   ****************************************************************************/
+  String str_time = "12:05";
+  // char str_time[50]; sprintf(str_time, "%g", 12.00);
+  x = 220; y = 4; w = 96; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setFreeFont(FSSBO18);
+  tft.drawString(str_time, x+4, y+8, GFXFF);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Time", x+10, y+42, GFXFF);
+
+  /*****************************************************************************
    * Temp 
    ****************************************************************************/
   char str_temp[50]; sprintf(str_temp, "%g", myData.temp);
-  x = 4; y = 92; w = 82; h = 64;
+  x = 4; y = 102; w = 82; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
   tft.drawString(str_temp, x+6, y+8, GFXFF);  
@@ -109,7 +140,7 @@ void draw() {
    * Humidity 
    ****************************************************************************/
   char str_hum[50]; sprintf(str_hum, "%g", myData.hum);
-  x = 4; y = 160; w = 82; h = 64;
+  x = 4; y = 170; w = 82; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
   tft.drawString(str_hum, x+6, y+8, GFXFF);  
