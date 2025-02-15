@@ -89,17 +89,32 @@ void loop() {
 
 void draw() {
 
+  int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
+
   tft.fillScreen(TFT_GREY);            // Clear screen
   tft.setTextColor(TFT_WHITE);
+
   /*****************************************************************************
    * Temp 
    ****************************************************************************/
-  char str_temp[50]; sprintf(str_temp, "%g" ,myData.temp);
-  tft.drawRect(4, 80, 82, 72, TFT_WHITE);
+  char str_temp[50]; sprintf(str_temp, "%g", myData.temp);
+  x = 4; y = 92; w = 82; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
-  tft.drawString(str_temp, 10, 90, GFXFF);  
+  tft.drawString(str_temp, x+6, y+8, GFXFF);  
   tft.setFreeFont(FF1);
-  tft.drawString("Temp", 12, 130, GFXFF);
+  tft.drawString("Temp", x+8, y+42, GFXFF);
+
+  /*****************************************************************************
+   * Humidity 
+   ****************************************************************************/
+  char str_hum[50]; sprintf(str_hum, "%g", myData.hum);
+  x = 4; y = 160; w = 82; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setFreeFont(FSSBO18);
+  tft.drawString(str_hum, x+6, y+8, GFXFF);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Humid.", x+8, y+42, GFXFF);  
 
   delay(1000);
 }
