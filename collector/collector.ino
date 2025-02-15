@@ -78,6 +78,13 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
+    double gps_lat; // latitude
+    double gps_lng; // longitude
+    unsigned int gps_date; // the latest date fix (UT)
+    unsigned int gps_time; // the latest time fix (UT)
+    double gps_speed_kmph; // current ground speed
+    double gps_altitude_meters; // latest altitude fix
+    int8_t gps_age; // mls since last update
 } struct_message;
 
 // Create a struct_message to hold outgoing readings
@@ -105,11 +112,20 @@ void u8g2_prepare() {
   u8g2.setFontDirection(0);
 }
 
+// GPS
 static const int RXPin = 1, TXPin = 0;
 static const uint32_t GPSBaud = 4800;
 // The TinyGPSPlus object
 TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
+// A sample NMEA stream.
+const char *gpsStreamDemo =
+  "$GPRMC,045103.000,A,3014.1984,N,09749.2872,W,0.67,161.46,030913,,,A*7C\r\n"
+  "$GPGGA,045104.000,3014.1985,N,09749.2873,W,1,09,1.2,211.6,M,-22.5,M,,0000*62\r\n"
+  "$GPRMC,045200.000,A,3014.3820,N,09748.9514,W,36.88,65.02,030913,,,A*77\r\n"
+  "$GPGGA,045201.000,3014.3864,N,09748.9411,W,1,10,1.2,200.8,M,-22.5,M,,0000*6C\r\n"
+  "$GPRMC,045251.000,A,3014.4275,N,09749.0626,W,0.51,217.94,030913,,,A*7D\r\n"
+  "$GPGGA,045252.000,3014.4273,N,09749.0628,W,1,09,1.3,206.9,M,-22.5,M,,0000*6F\r\n";
 
 void setup() {
   // Init Serial Monitor
@@ -161,6 +177,14 @@ void setup() {
 
   // serial to GPS
   ss.begin(GPSBaud);
+
+  // with demo NMEA stream data
+  while (*gpsStreamDemo) {
+    if (gps.encode(*gpsStreamDemo++)) {
+      GPS_OK = true;
+      displayGPSInfo();
+    }
+  }
 }
 
 void display_status_lcd() {
@@ -264,6 +288,7 @@ void loop() {
   while (ss.available() > 0) {
     if (gps.encode(ss.read())) {
       displayGPSInfo();
+      sendGPSInfo();
       GPS_OK = true;
     }
   }
@@ -272,8 +297,6 @@ void loop() {
     Serial.println(F("No GPS detected: check wiring."));
   }
   // Set values to send
-  outgoingReadings.speed_kph = 13;
-  outgoingReadings.speed_rpm = 12;
   outgoingReadings.fuel_perc = 50;
   
   // Send message via ESP-NOW
@@ -325,4 +348,28 @@ void displayGPSInfo() {
     Serial.print(F("INVALID"));
   }
   Serial.println();
+}
+
+void sendGPSInfo() {
+  if (gps.location.isValid()) {
+    outgoingReadings.gps_lat = gps.location.lat();
+    outgoingReadings.gps_lng = gps.location.lng();
+  } else {
+    Serial.print(F("INVALID"));
+  }
+  if (gps.date.isValid()) {
+    unsigned int gpsdate = gps.date.value();
+    outgoingReadings.gps_date = gpsdate;
+  } else {
+    Serial.print(F("INVALID"));
+  }
+  if (gps.time.isValid()) {
+    unsigned int gpstime = gps.time.value();
+    outgoingReadings.gps_time = gpstime;
+  } else {
+    Serial.print(F("INVALID"));
+  }
+  outgoingReadings.gps_speed_kmph = 122;
+  outgoingReadings.gps_altitude_meters = 12;
+  outgoingReadings.gps_age = 5;
 }
