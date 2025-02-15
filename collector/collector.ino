@@ -78,8 +78,8 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
-    double gps_lat; // latitude
-    double gps_lng; // longitude
+    float gps_lat; // latitude
+    float gps_lng; // longitude
     unsigned int gps_date; // the latest date fix (UT)
     unsigned int gps_time; // the latest time fix (UT)
     double gps_speed_kmph; // current ground speed
@@ -94,6 +94,14 @@ esp_now_peer_info_t peerInfo;
 
 // Callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  Serial.println("** start DEBUG **");
+  Serial.print("Temp "); Serial.println(outgoingReadings.temp);
+  Serial.print("Humidity "); Serial.println(outgoingReadings.hum);
+  Serial.print("GPS lat "); Serial.println(outgoingReadings.gps_lat);
+  Serial.print("GPS lng "); Serial.println(outgoingReadings.gps_lng);
+  Serial.print("GPS date "); Serial.println(outgoingReadings.gps_date);
+  Serial.print("GPS time "); Serial.println(outgoingReadings.gps_time);
+  Serial.println("** end DEBUG **");
   Serial.print("\r\nLast Packet Send Status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
   if (status ==0){
@@ -175,9 +183,8 @@ void setup() {
   delay(10000);
   SETUP_OK = true;
 
-  // serial to GPS
+  // GPS
   ss.begin(GPSBaud);
-
   // with demo NMEA stream data
   while (*gpsStreamDemo) {
     if (gps.encode(*gpsStreamDemo++)) {
@@ -277,22 +284,17 @@ void loop() {
   } else {
     TEMP_OK = true;
   }
-  Serial.print(F("humidty: "));
-  Serial.println(h);
-  Serial.print(F("Temperature: "));
-  Serial.println(t);
   outgoingReadings.hum = h;
   outgoingReadings.temp = t;
 
   // Display GPS information every time a new sentence is correctly encoded.
-  while (ss.available() > 0) {
+  if (ss.available() > 0) {
     if (gps.encode(ss.read())) {
       displayGPSInfo();
       sendGPSInfo();
       GPS_OK = true;
     }
   }
-
   if (millis() > 5000 && gps.charsProcessed() < 10) {
     Serial.println(F("No GPS detected: check wiring."));
   }

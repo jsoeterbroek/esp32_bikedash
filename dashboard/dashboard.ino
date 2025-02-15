@@ -37,6 +37,13 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
+    float gps_lat; // latitude
+    float gps_lng; // longitude
+    unsigned int gps_date; // the latest date fix (UT)
+    unsigned int gps_time; // the latest time fix (UT)
+    double gps_speed_kmph; // current ground speed
+    double gps_altitude_meters; // latest altitude fix
+    int8_t gps_age; // mls since last update
 } struct_message;
 
 // Create a struct_message to hold incoming data
@@ -52,10 +59,14 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  Serial.print("temp: ");
-  Serial.println(myData.temp);  
-  Serial.print("hum: ");
-  Serial.println(myData.hum);
+  Serial.println("GPS data: ");
+  Serial.print("GPS time: ");
+  Serial.println(myData.gps_time);
+  Serial.print("GPS lat: ");
+  Serial.println(myData.gps_lat);
+  Serial.print("GPS long: ");
+  Serial.println(myData.gps_lng);
+  Serial.println("-------");
   data_ready = true;
 }
 
@@ -114,16 +125,15 @@ void draw() {
   tft.setTextColor(TFT_WHITE);
 
   /*****************************************************************************
-   * Time 
+   * GPS Time 
    ****************************************************************************/
-  String str_time = "12:05";
-  // char str_time[50]; sprintf(str_time, "%g", 12.00);
+  char str_time[50]; sprintf(str_time, "%u", myData.gps_time);
   x = 220; y = 4; w = 96; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
   tft.drawString(str_time, x+4, y+8, GFXFF);  
   tft.setFreeFont(FF1);
-  tft.drawString("Time", x+10, y+42, GFXFF);
+  tft.drawString("GPS Time", x+10, y+42, GFXFF);
 
   /*****************************************************************************
    * Temp 
