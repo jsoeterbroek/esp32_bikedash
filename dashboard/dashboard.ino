@@ -134,13 +134,13 @@ void draw() {
   x = 170; y = 4; w = 140; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
-  // TODO make string "HH:MM:SS"
+  // make string "HH:MM"
+  // TODO: 24-hours format
   int fu;
   char buffer[50];
-  fu = sprintf(buffer, "%i:%i:%i",
+  fu = sprintf(buffer, "%.2i:%.2i",
     myData.gps_time_hour,
-    myData.gps_time_minute,
-    myData.gps_time_second);
+    myData.gps_time_minute);
   String gps_time(buffer);
   tft.drawString(gps_time, x+6, y+8);
   tft.setFreeFont(FF1);
