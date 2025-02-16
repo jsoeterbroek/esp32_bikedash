@@ -2,3 +2,4 @@ Library Name                        Version    Author                    Archite
 ----------------------------------- ---------- ------------------------- --------------- -------
 SPI                                 3.1.2      Hristo Gochkov            esp32           system
 WiFi                                3.1.2      Hristo Gochkov            esp32           system
+TFT_eSPI                            2.5.43     Bodmer                    *               user

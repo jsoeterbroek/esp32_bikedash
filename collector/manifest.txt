@@ -3,3 +3,8 @@ Library Name                        Version    Author                    Archite
 SPI                                 3.1.2      Hristo Gochkov            esp32           system
 WiFi                                3.1.2      Hristo Gochkov            esp32           system
 Wire                                3.1.2      Hristo Gochkov            esp32           system
+Adafruit Unified Sensor             1.1.15     Adafruit <info@adafruit.c *               user
+DHT sensor library                  1.4.6      Adafruit                  *               user
+EspSoftwareSerial                   8.1.0      Dirk Kaar, Peter Lerup    esp8266,esp32   user
+TinyGPSPlus                         1.0.3      Mikal Hart                *               user
+U8g2                                2.35.30    oliver <olikraus@gmail.co *               user

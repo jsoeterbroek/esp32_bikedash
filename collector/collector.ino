@@ -80,7 +80,6 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
-    // Location: 30.239773,-97.815685  Date/Time: 9/3/2013 04:52:01.00
     long gps_lat; // latitude - ex '30.239773'
     long gps_lng; // longitude - ex '-97.815685'
     uint32_t gps_date; // date - ex '30913' = 9/3/2013
