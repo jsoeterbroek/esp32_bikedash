@@ -37,10 +37,10 @@ typedef struct struct_message {
     uint8_t speed_kph;
     uint8_t speed_rpm;
     int8_t fuel_perc;
-    float gps_lat; // latitude
-    float gps_lng; // longitude
-    unsigned int gps_date; // the latest date fix (UT)
-    unsigned int gps_time; // the latest time fix (UT)
+    long gps_lat; // latitude - ex '30.239773'
+    long gps_lng; // longitude - ex '-97.815685'
+    uint32_t gps_date; // date - ex '30913' = 9/3/2013
+    uint32_t gps_time; // time - ex '4525200' = 04:52:01.00
     double gps_speed_kmph; // current ground speed
     double gps_altitude_meters; // latest altitude fix
     int8_t gps_age; // mls since last update
@@ -60,11 +60,11 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print("Bytes received: ");
   Serial.println(len);
   Serial.println("GPS data: ");
-  Serial.print("GPS time: ");
+  Serial.print("  GPS time: ");
   Serial.println(myData.gps_time);
-  Serial.print("GPS lat: ");
+  Serial.print("  GPS lat: ");
   Serial.println(myData.gps_lat);
-  Serial.print("GPS long: ");
+  Serial.print("  GPS long: ");
   Serial.println(myData.gps_lng);
   Serial.println("-------");
   data_ready = true;
