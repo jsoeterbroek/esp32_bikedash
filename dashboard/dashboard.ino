@@ -39,8 +39,9 @@ typedef struct struct_message {
     int8_t fuel_perc;
     long gps_lat; // latitude - ex '30.239773'
     long gps_lng; // longitude - ex '-97.815685'
-    uint32_t gps_date; // date - ex '30913' = 9/3/2013
-    uint32_t gps_time; // time - ex '4525200' = 04:52:01.00
+    uint8_t gps_time_hour;
+    uint8_t gps_time_minute;
+    uint8_t gps_time_second;
     double gps_speed_kmph; // current ground speed
     double gps_altitude_meters; // latest altitude fix
     int8_t gps_age; // mls since last update
@@ -61,7 +62,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(len);
   Serial.println("GPS data: ");
   Serial.print("  GPS time: ");
-  Serial.println(myData.gps_time);
+  Serial.println(myData.gps_time_hour);
+  Serial.println(myData.gps_time_minute);
+  Serial.println(myData.gps_time_second);
   Serial.print("  GPS lat: ");
   Serial.println(myData.gps_lat);
   Serial.print("  GPS long: ");
@@ -127,16 +130,19 @@ void draw() {
   /*****************************************************************************
    * GPS Time 
    ****************************************************************************/
-  // convert time 
-  // gps_time = 4525100 (uint32_t) = 04:52:51 (string,char)
-  // 
-  float flt_time;
-  flt_time = 4525100; 
-  //float flt_time; sprintf(str_time, "%g", myData.gps_time);
+
   x = 170; y = 4; w = 140; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
-  tft.drawFloat(flt_time, 0 , x+4, y+8);  
+  // TODO make string "HH:MM:SS"
+  int fu;
+  char buffer[50];
+  fu = sprintf(buffer, "%i:%i:%i",
+    myData.gps_time_hour,
+    myData.gps_time_minute,
+    myData.gps_time_second);
+  String gps_time(buffer);
+  tft.drawString(gps_time, x+6, y+8);
   tft.setFreeFont(FF1);
   tft.drawString("GPS Time", x+10, y+42, GFXFF);
 

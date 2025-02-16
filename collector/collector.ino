@@ -82,8 +82,9 @@ typedef struct struct_message {
     int8_t fuel_perc;
     long gps_lat; // latitude - ex '30.239773'
     long gps_lng; // longitude - ex '-97.815685'
-    uint32_t gps_date; // date - ex '30913' = 9/3/2013
-    uint32_t gps_time; // time - ex '4525200' = 04:52:01.00
+    uint8_t gps_time_hour;
+    uint8_t gps_time_minute;
+    uint8_t gps_time_second;
     double gps_speed_kmph; // current ground speed
     double gps_altitude_meters; // latest altitude fix
     int8_t gps_age; // mls since last update
@@ -101,8 +102,9 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   Serial.print("Humidity "); Serial.println(outgoingReadings.hum);
   Serial.print("GPS lat "); Serial.println(outgoingReadings.gps_lat);
   Serial.print("GPS lng "); Serial.println(outgoingReadings.gps_lng);
-  Serial.print("GPS date "); Serial.println(outgoingReadings.gps_date);
-  Serial.print("GPS time "); Serial.println(outgoingReadings.gps_time);
+  Serial.print("GPS time hour "); Serial.println(outgoingReadings.gps_time_hour);
+  Serial.print("GPS time minute"); Serial.println(outgoingReadings.gps_time_minute);
+  Serial.print("GPS time second"); Serial.println(outgoingReadings.gps_time_second);
   Serial.println("** end DEBUG **");
   Serial.print("\r\nLast Packet Send Status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
@@ -393,7 +395,9 @@ void sendGPSInfo() {
   if (gps.time.isValid()) {
     // Serial.print("DEBUG: GPS time value: ");
     // Serial.println(gps.time.value());   
-    outgoingReadings.gps_time = gps.time.value();
+    outgoingReadings.gps_time_hour = gps.time.hour();
+    outgoingReadings.gps_time_minute = gps.time.value();
+    outgoingReadings.gps_time_second = gps.time.value();
   } else {
     Serial.print(F("INVALID"));
   }
