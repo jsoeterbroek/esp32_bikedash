@@ -127,33 +127,48 @@ void draw() {
   /*****************************************************************************
    * GPS Time 
    ****************************************************************************/
-  char str_time[50]; sprintf(str_time, "%u", myData.gps_time);
-  x = 220; y = 4; w = 96; h = 64;
+  // convert time 
+  // gps_time = 4525100 (uint32_t) = 04:52:51 (string,char)
+  // 
+  float flt_time;
+  flt_time = 4525100; 
+  //float flt_time; sprintf(str_time, "%g", myData.gps_time);
+  x = 170; y = 4; w = 140; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
-  tft.drawString(str_time, x+4, y+8, GFXFF);  
+  tft.drawFloat(flt_time, 0 , x+4, y+8);  
   tft.setFreeFont(FF1);
   tft.drawString("GPS Time", x+10, y+42, GFXFF);
 
   /*****************************************************************************
+   * GPS locations
+   ****************************************************************************/  
+  x = 170; y = 70; w = 140; h = 70;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setFreeFont(FF1);
+  tft.drawNumber(myData.gps_lat, x+6, y+8);  
+  tft.drawNumber(myData.gps_lng, x+6, y+28);  
+  tft.drawString("GPS lat/lon", x+6, y+50, GFXFF);
+
+  /*****************************************************************************
    * Temp 
    ****************************************************************************/
-  char str_temp[50]; sprintf(str_temp, "%g", myData.temp);
   x = 4; y = 102; w = 82; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setTextColor(TFT_WHITE);
   tft.setFreeFont(FSSBO18);
-  tft.drawString(str_temp, x+6, y+8, GFXFF);  
+  tft.drawFloat(myData.temp, 1, x+5, y+8);  
   tft.setFreeFont(FF1);
   tft.drawString("Temp", x+8, y+42, GFXFF);
 
   /*****************************************************************************
    * Humidity 
    ****************************************************************************/
-  char str_hum[50]; sprintf(str_hum, "%g", myData.hum);
   x = 4; y = 170; w = 82; h = 64;
+  tft.setTextColor(TFT_WHITE);
   tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
-  tft.drawString(str_hum, x+6, y+8, GFXFF);  
+  tft.drawFloat(myData.hum, 0, x+5, y+8);  
   tft.setFreeFont(FF1);
   tft.drawString("Humid.", x+8, y+42, GFXFF);  
 
