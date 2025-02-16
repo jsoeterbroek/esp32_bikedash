@@ -61,6 +61,8 @@ bool SETUP_OK = false;
 bool ESP_SETUP_OK = false;
 bool ESP_SEND_OK = false;
 bool GPS_OK = false;
+bool GPS_DATA_SEND_OK = false;
+bool GPS_DEMO_DATA_SEND_ONCE = false;
 bool GSM_OK = false;
 bool TEMP_OK = false;
 bool BATT_OK = false;
@@ -123,17 +125,10 @@ void u8g2_prepare() {
 // GPS
 static const int RXPin = 1, TXPin = 0;
 static const uint32_t GPSBaud = 4800;
+
 // The TinyGPSPlus object
 TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
-// A sample NMEA stream.
-const char *gpsStreamDemo =
-  "$GPRMC,045103.000,A,3014.1984,N,09749.2872,W,0.67,161.46,030913,,,A*7C\r\n"
-  "$GPGGA,045104.000,3014.1985,N,09749.2873,W,1,09,1.2,211.6,M,-22.5,M,,0000*62\r\n"
-  "$GPRMC,045200.000,A,3014.3820,N,09748.9514,W,36.88,65.02,030913,,,A*77\r\n"
-  "$GPGGA,045201.000,3014.3864,N,09748.9411,W,1,10,1.2,200.8,M,-22.5,M,,0000*6C\r\n"
-  "$GPRMC,045251.000,A,3014.4275,N,09749.0626,W,0.51,217.94,030913,,,A*7D\r\n"
-  "$GPGGA,045252.000,3014.4273,N,09749.0628,W,1,09,1.3,206.9,M,-22.5,M,,0000*6F\r\n";
 
 void setup() {
   // Init Serial Monitor
@@ -183,13 +178,26 @@ void setup() {
   delay(10000);
   SETUP_OK = true;
 
-  // GPS
+  // DEMO GPS DATA  -- TODO: rewrite/remove when real GPS data available
+  // ss.begin(GPSBaud);
+  // sample NMEA stream
+  const char *gpsStreamDemo =
+    "$GPRMC,045103.000,A,3014.1984,N,09749.2872,W,0.67,161.46,030913,,,A*7C\r\n"
+    "$GPGGA,045104.000,3014.1985,N,09749.2873,W,1,09,1.2,211.6,M,-22.5,M,,0000*62\r\n"
+    "$GPRMC,045200.000,A,3014.3820,N,09748.9514,W,36.88,65.02,030913,,,A*77\r\n"
+    "$GPGGA,045201.000,3014.3864,N,09748.9411,W,1,10,1.2,200.8,M,-22.5,M,,0000*6C\r\n"
+    "$GPRMC,045251.000,A,3014.4275,N,09749.0626,W,0.51,217.94,030913,,,A*7D\r\n"
+    "$GPGGA,045252.000,3014.4273,N,09749.0628,W,1,09,1.3,206.9,M,-22.5,M,,0000*6F\r\n";
+ 
+  // GPS TODO
   ss.begin(GPSBaud);
-  // with demo NMEA stream data
   while (*gpsStreamDemo) {
     if (gps.encode(*gpsStreamDemo++)) {
       GPS_OK = true;
       displayGPSInfo();
+      sendGPSInfo();
+      GPS_DATA_SEND_OK = true;
+      GPS_DEMO_DATA_SEND_ONCE = true;
     }
   }
 }
@@ -287,17 +295,6 @@ void loop() {
   outgoingReadings.hum = h;
   outgoingReadings.temp = t;
 
-  // Display GPS information every time a new sentence is correctly encoded.
-  if (ss.available() > 0) {
-    if (gps.encode(ss.read())) {
-      displayGPSInfo();
-      sendGPSInfo();
-      GPS_OK = true;
-    }
-  }
-  if (millis() > 5000 && gps.charsProcessed() < 10) {
-    Serial.println(F("No GPS detected: check wiring."));
-  }
   // Set values to send
   outgoingReadings.fuel_perc = 50;
   
@@ -305,9 +302,9 @@ void loop() {
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
    
   if (result == ESP_OK) {
-    Serial.println("Sent with success");
+    Serial.println("ESP_NOW Sent with success");
   } else {
-     Serial.println("Error sending the data");
+     Serial.println("ESP_NOW Error sending the data");
   }
 
   display_status_lcd();
