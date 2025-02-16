@@ -141,17 +141,14 @@ void draw() {
 
   int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
 
-  // tft.fillScreen(TFT_GREY);            // Clear screen
   tft.fillScreen(TFT_WHITE);            // Clear screen
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(TFT_GREY);
 
   /*****************************************************************************
    * GPS Time 
    ****************************************************************************/
-
   x = 170; y = 4; w = 140; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setFreeFont(FSSBO18);
   // make string "HH:MM"
   // TODO: 24-hours format
@@ -170,7 +167,6 @@ void draw() {
    ****************************************************************************/  
   x = 170; y = 70; w = 140; h = 70;
   tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setFreeFont(FF1);
   tft.drawNumber(myData.gps_lat, x+6, y+8);  
   tft.drawNumber(myData.gps_lng, x+6, y+28);  
@@ -181,8 +177,6 @@ void draw() {
    ****************************************************************************/
   x = 4; y = 102; w = 82; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
-  tft.setTextColor(TFT_WHITE);
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.temp, 1, x+5, y+8);  
   tft.setFreeFont(FF1);
@@ -192,9 +186,7 @@ void draw() {
    * Humidity 
    ****************************************************************************/
   x = 4; y = 170; w = 82; h = 64;
-  tft.setTextColor(TFT_WHITE);
   tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.hum, 0, x+5, y+8);  
   tft.setFreeFont(FF1);
