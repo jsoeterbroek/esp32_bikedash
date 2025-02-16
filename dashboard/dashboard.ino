@@ -1,10 +1,24 @@
 /*******************************************************************************
  ******************************************************************************/
+#include <../common/common.h>
 #include <SPI.h>
 #include <esp_now.h>
 #include <WiFi.h>
 #include <TFT_eSPI.h>
 #include "Free_Fonts.h" // Include the header file attached to this sketch
+
+bool SETUP_OK = false;
+bool ESP_SETUP_OK = false;
+bool ESP_DATA_RECVD_OK = false;
+bool GPS_OK = false;
+bool GPS_DATA_RECVD_OK = false;
+bool GSM_OK = false;
+bool GSM_DATA_RECVD_OK = false;
+bool TEMP_OK = false;
+bool TEMP_DATA_RECVD_OK = false;
+bool BATT_OK = false;
+bool BATT_DATA_RECVD_OK = false;
+
 
 //       An abbreviation of the font name. Look at the list below to see
 //       the abbreviations used, for example:
@@ -70,14 +84,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print("  GPS long: ");
   Serial.println(myData.gps_lng);
   Serial.println("-------");
-  data_ready = true;
+  ESP_DATA_RECVD_OK = true;
 }
 
 void setup() {
 
   tft.init();
   tft.setRotation(1);
-  
   tft.fillScreen(TFT_WHITE);
 
   //Initialize Serial Monitor
@@ -91,17 +104,22 @@ void setup() {
     Serial.println("Error initializing ESP-NOW");
     return;
   }
-
+  ESP_SETUP_OK = true;
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
-  tft.drawString("Setup OK..", 6, 4, GFXFF);
-  delay(8000); // 8 seconds
-  if (data_ready) {
-    tft.drawString("Data Ready..", 6, 14, GFXFF);
-  }
-  delay(1000); // 1 seconds
+  // setup 'splash' screen
+  tft.fillScreen(TFT_GREY);            // Clear screen
+  tft.setTextColor(TFT_WHITE); 
+  tft.setFreeFont(FSSBO18);
+  tft.drawString("/// BMW R1100GS", 6, 104, GFXFF);
+  tft.setFreeFont(FM9);
+  String software = " esp32_bike ";
+  software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
+  tft.drawString(software, 30, 144, GFXFF);
+
+  delay(5000); // 5 seconds
 }
 
 void loop() {
@@ -112,19 +130,19 @@ void loop() {
   //     startup_ready = false;
   //  }
 
-  if (data_ready) {
+  if (ESP_DATA_RECVD_OK) {
     draw();
-    data_ready = false;
   }
 
-  delay(1000);
+  delay(5000);
 }
 
 void draw() {
 
   int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
 
-  tft.fillScreen(TFT_GREY);            // Clear screen
+  // tft.fillScreen(TFT_GREY);            // Clear screen
+  tft.fillScreen(TFT_WHITE);            // Clear screen
   tft.setTextColor(TFT_WHITE);
 
   /*****************************************************************************
@@ -132,7 +150,8 @@ void draw() {
    ****************************************************************************/
 
   x = 170; y = 4; w = 140; h = 64;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setFreeFont(FSSBO18);
   // make string "HH:MM"
   // TODO: 24-hours format
@@ -150,7 +169,8 @@ void draw() {
    * GPS locations
    ****************************************************************************/  
   x = 170; y = 70; w = 140; h = 70;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setFreeFont(FF1);
   tft.drawNumber(myData.gps_lat, x+6, y+8);  
   tft.drawNumber(myData.gps_lng, x+6, y+28);  
@@ -160,7 +180,8 @@ void draw() {
    * Temp 
    ****************************************************************************/
   x = 4; y = 102; w = 82; h = 64;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setTextColor(TFT_WHITE);
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.temp, 1, x+5, y+8);  
@@ -172,7 +193,8 @@ void draw() {
    ****************************************************************************/
   x = 4; y = 170; w = 82; h = 64;
   tft.setTextColor(TFT_WHITE);
-  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  tft.fillRoundRect(x+3, y+3, w-6, h-6, 10, TFT_GREY);
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.hum, 0, x+5, y+8);  
   tft.setFreeFont(FF1);
