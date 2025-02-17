@@ -106,7 +106,7 @@ void draw() {
   /*****************************************************************************
    * 'led' warning lights
    *
-   *  esp -> orange : data received ok
+   *  esp -> green  : data received ok
    *  esp -> grey   : data not received
    * 
    *  gps -> orange : indoors, (test) data received ok
@@ -114,15 +114,15 @@ void draw() {
    *  gps -> grey   : data not received
    ****************************************************************************/
 
-  lx = 18; ly = 285; ls = 4;
+  lx = 20; ly = 285; ls = 4;
   tft.drawString("esp", lx, ly, GFXFF);  
   if (ESP_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_ORANGE);
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
   } else {
     tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
   }
 
-  lx = 18; ly = 298; ls = 4;
+  lx = 20; ly = 298; ls = 4;
   tft.drawString("gps", lx, ly, GFXFF);  
   if (GPS_INDOORS_TEST) {
     if (GPS_DATA_RECVD_OK) {
