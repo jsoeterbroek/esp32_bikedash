@@ -6,6 +6,7 @@
 #include <WiFi.h>
 #include <TFT_eSPI.h>
 #include "Free_Fonts.h" // Include the header file attached to this sketch
+#include <NotoSansBold36.h>
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
@@ -119,6 +120,7 @@ void draw() {
 
   tft.fillScreen(TFT_WHITE);            // Clear screen
   tft.setTextColor(TFT_GREY);
+  tft.setFreeFont(FF1);
 
   /*****************************************************************************
    * 'led' warning lights
@@ -180,8 +182,10 @@ void draw() {
   x = 170; y = 142; w = 140; h = 70;
   tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
   if (GPS_DATA_RECVD_OK) {
-    tft.setFreeFont(FSSBO18);
-    tft.drawNumber(myData.gps_speed_kmph, x+6, y+8);  
+    //tft.setFreeFont(FSSBO18);
+    tft.loadFont(NotoSansBold36);
+    tft.drawNumber(myData.gps_speed_kmph, x+20, y+10);  
+    tft.unloadFont();
   }
   tft.setFreeFont(FF1);
   tft.drawString("Ground Speed (K/h)", x+6, y+50, GFXFF);
@@ -210,3 +214,79 @@ void draw() {
 
   delay(1000);
 }
+
+// -------------------------------------------------------------------------
+// List files in ESP8266 or ESP32 SPIFFS memory
+// -------------------------------------------------------------------------
+void listFiles(void) {
+  Serial.println();
+  Serial.println("SPIFFS files found:");
+
+#ifdef ESP32
+  listDir(SPIFFS, "/", true);
+#else
+  fs::Dir dir = SPIFFS.openDir("/"); // Root directory
+  String  line = "=====================================";
+
+  Serial.println(line);
+  Serial.println("  File name               Size");
+  Serial.println(line);
+
+  while (dir.next()) {
+    String fileName = dir.fileName();
+    Serial.print(fileName);
+    int spaces = 25 - fileName.length(); // Tabulate nicely
+    if (spaces < 0) spaces = 1;
+    while (spaces--) Serial.print(" ");
+    fs::File f = dir.openFile("r");
+    Serial.print(f.size()); Serial.println(" bytes");
+    yield();
+  }
+
+  Serial.println(line);
+#endif
+  Serial.println();
+  delay(1000);
+}
+
+#ifdef ESP32
+void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
+  Serial.printf("Listing directory: %s\n", dirname);
+
+  fs::File root = fs.open(dirname);
+  if (!root) {
+    Serial.println("Failed to open directory");
+    return;
+  }
+  if (!root.isDirectory()) {
+    Serial.println("Not a directory");
+    return;
+  }
+
+  fs::File file = root.openNextFile();
+  while (file) {
+
+    if (file.isDirectory()) {
+      Serial.print("DIR : ");
+      String fileName = file.name();
+      Serial.print(fileName);
+      if (levels) {
+        listDir(fs, file.name(), levels - 1);
+      }
+    } else {
+      String fileName = file.name();
+      Serial.print("  " + fileName);
+      int spaces = 32 - fileName.length(); // Tabulate nicely
+      if (spaces < 1) spaces = 1;
+      while (spaces--) Serial.print(" ");
+      String fileSize = (String) file.size();
+      spaces = 8 - fileSize.length(); // Tabulate nicely
+      if (spaces < 1) spaces = 1;
+      while (spaces--) Serial.print(" ");
+      Serial.println(fileSize + " bytes");
+    }
+
+    file = root.openNextFile();
+  }
+}
+#endif

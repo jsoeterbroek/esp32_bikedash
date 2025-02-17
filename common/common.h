@@ -21,3 +21,4 @@ static inline int version_minor(void) {
 static inline int version_patch(void) {
     return VERSION_PATCH;
 }
+
