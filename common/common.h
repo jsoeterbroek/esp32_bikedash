@@ -7,10 +7,9 @@
 #define VERSION_MINOR 1
 #define VERSION_PATCH 1
 
-// when developing indoors GPS does not work, set this to work with 
+// when developing indoors GPS does not work, enable this to work with 
 // test NMEA data.
-// #define GPS_INDOOR_TEST 0
-#define GPS_INDOORS_TEST 1
+// #define GPS_INDOORS_TEST
 
 static inline int version_major(void) {
     return VERSION_MAJOR;
