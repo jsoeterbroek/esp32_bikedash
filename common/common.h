@@ -21,4 +21,22 @@ static inline int version_minor(void) {
 static inline int version_patch(void) {
     return VERSION_PATCH;
 }
+//Structure example to send data
+//Must match the receiver structure
+typedef struct struct_message {
+  int id;
+  float batt_v;
+  float temp;
+  float hum;
+  unsigned int readingId;
+  int8_t fuel_perc;
+  long gps_lat; // latitude - ex '30.239773'
+  long gps_lng; // longitude - ex '-97.815685'
+  uint8_t gps_time_hour;
+  uint8_t gps_time_minute;
+  uint8_t gps_time_second;
+  double gps_speed_kmph; // current ground speed
+  double gps_altitude_meters; // latest altitude fix
+  int8_t gps_age; // mls since last update
+} struct_message;
 

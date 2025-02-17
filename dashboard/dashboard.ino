@@ -27,26 +27,6 @@ bool TEMP_DATA_RECVD_OK = false;
 bool BATT_OK = false;
 bool BATT_DATA_RECVD_OK = false;
 
-//Structure example to send data
-//Must match the receiver structure
-typedef struct struct_message {
-    int id;
-    float temp;
-    float hum;
-    unsigned int readingId;
-    uint8_t speed_kph;
-    uint8_t speed_rpm;
-    int8_t fuel_perc;
-    long gps_lat; // latitude - ex '30.239773'
-    long gps_lng; // longitude - ex '-97.815685'
-    uint8_t gps_time_hour;
-    uint8_t gps_time_minute;
-    uint8_t gps_time_second;
-    double gps_speed_kmph; // current ground speed
-    double gps_altitude_meters; // latest altitude fix
-    int8_t gps_age; // mls since last update
-} struct_message;
-
 // Create a struct_message to hold incoming data
 struct_message myData;
 
@@ -190,17 +170,25 @@ void draw() {
   tft.setFreeFont(FF1);
   tft.drawString("Ground Speed (K/h)", x+6, y+50, GFXFF);
 
-  //  double gps_altitude_meters
+  /*****************************************************************************
+   * Batt 
+   ****************************************************************************/
+  x = 4; y = 38; w = 82; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  tft.setFreeFont(FSSBO18);
+  tft.drawFloat(myData.batt_v, 1, x+5, y+8);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Batt V", x+8, y+42, GFXFF);
 
   /*****************************************************************************
    * Temp 
    ****************************************************************************/
-  x = 4; y = 102; w = 82; h = 64;
+  x = 4; y = 104; w = 82; h = 64;
   tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.temp, 1, x+5, y+8);  
   tft.setFreeFont(FF1);
-  tft.drawString("Temp", x+8, y+42, GFXFF);
+  tft.drawString("Temp C", x+8, y+42, GFXFF);
 
   /*****************************************************************************
    * Humidity 
