@@ -53,7 +53,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 void setup() {
 
   tft.init();
-  tft.setRotation(1);
+  //tft.setRotation(1);
+  tft.setRotation(0);
   tft.fillScreen(TFT_WHITE);
 
   //Initialize Serial Monitor
@@ -76,11 +77,12 @@ void setup() {
   tft.fillScreen(TFT_GREY);            // Clear screen
   tft.setTextColor(TFT_WHITE); 
   tft.setFreeFont(FSSBO18);
-  tft.drawString("/// BMW R1100GS", 6, 104, GFXFF);
+  tft.drawString("/// BMW", 6, 104, GFXFF);
+  tft.drawString("    R1100GS", 6, 136, GFXFF);
   tft.setFreeFont(FM9);
   String software = " esp32_bike ";
   software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
-  tft.drawString(software, 30, 144, GFXFF);
+  tft.drawString(software, 14, 190, GFXFF);
 
   delay(5000); // 5 seconds
 }
@@ -96,39 +98,88 @@ void loop() {
 
 void draw() {
 
-  int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
-
-  tft.fillScreen(TFT_WHITE);            // Clear screen
-  tft.setTextColor(TFT_GREY);
+  tft.fillScreen(TFT_GREY);            // Clear screen
+  tft.setTextColor(TFT_WHITE);
   tft.setFreeFont(FF1);
 
+  int32_t lx = 0; int32_t ly = 0; int32_t ls = 0;
   /*****************************************************************************
    * 'led' warning lights
+   *
+   *  esp -> orange : data received ok
+   *  esp -> grey   : data not received
    * 
    *  gps -> orange : indoors, (test) data received ok
    *  gps -> green  : outdoors, data received ok
    *  gps -> grey   : data not received
    ****************************************************************************/
-  tft.drawString("gps", 120, 20, GFXFF);  
-  if (GPS_INDOORS_TEST) {
-      if (GPS_DATA_RECVD_OK) {
-          tft.fillSmoothCircle(110, 26, 4, TFT_ORANGE);
-      } else {
-          tft.fillSmoothCircle(110, 26, 4, TFT_GREY);
-      }
+
+  lx = 18; ly = 285; ls = 4;
+  tft.drawString("esp", lx, ly, GFXFF);  
+  if (ESP_DATA_RECVD_OK) {
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_ORANGE);
   } else {
-      if (GPS_DATA_RECVD_OK) {
-          tft.fillSmoothCircle(110, 26, 4, TFT_GREEN);
-      } else {
-          tft.fillSmoothCircle(110, 26, 4, TFT_GREY);
-      }
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
   }
+
+  lx = 18; ly = 298; ls = 4;
+  tft.drawString("gps", lx, ly, GFXFF);  
+  if (GPS_INDOORS_TEST) {
+    if (GPS_DATA_RECVD_OK) {
+      tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_ORANGE);
+    } else {
+       tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
+    }
+  } else {
+    if (GPS_DATA_RECVD_OK) {
+      tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
+    } else {
+      tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
+    }
+  }
+
+  int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
+  /*****************************************************************************
+   * Batt 
+   ****************************************************************************/
+  x = 8; y = 4; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setFreeFont(FSSBO18);
+  tft.drawFloat(myData.batt_v, 1, x+5, y+8);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Batt V", x+8, y+42, GFXFF);
+
+  /*****************************************************************************
+   * Temp 
+   ****************************************************************************/
+  x = 8; y = 70; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setFreeFont(FSSBO18);
+  tft.drawFloat(myData.temp, 1, x+5, y+8);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Temp C", x+8, y+42, GFXFF);
+
+  /*****************************************************************************
+   * Humidity 
+   ****************************************************************************/
+  x = 8; y = 136; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setFreeFont(FSSBO18);
+  tft.drawFloat(myData.hum, 0, x+5, y+8);  
+  tft.setFreeFont(FF1);
+  tft.drawString("Humid.", x+8, y+42, GFXFF);  
+
+  /*****************************************************************************
+   * Free
+   ****************************************************************************/
+  x = 8; y = 202; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
 
   /*****************************************************************************
    * GPS Time 
    ****************************************************************************/
-  x = 170; y = 4; w = 140; h = 64;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  x = 122; y = 4; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(FSSBO18);
   if (GPS_DATA_RECVD_OK) {
     // make string "HH:MM"
@@ -141,103 +192,59 @@ void draw() {
     tft.drawString(gps_time, x+6, y+8);
   }
   tft.setFreeFont(FF1);
-  tft.drawString("GPS Time", x+10, y+42, GFXFF);
+  tft.drawString("Time", x+10, y+42, GFXFF);
 
   /*****************************************************************************
    * GPS locations
    ****************************************************************************/  
-  x = 170; y = 70; w = 140; h = 70;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.setFreeFont(FF1);
-  if (GPS_DATA_RECVD_OK) {
-    tft.drawNumber(myData.gps_lat, x+6, y+8);  
-    tft.drawNumber(myData.gps_lng, x+6, y+28);  
-  }
-  tft.drawString("GPS lat/lon", x+6, y+50, GFXFF);
+  x = 122; y = 70; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
+//  tft.setFreeFont(FF1);
+//  if (GPS_DATA_RECVD_OK) {
+//    tft.drawNumber(myData.gps_lat, x+6, y+8);  
+//    tft.drawNumber(myData.gps_lng, x+6, y+28);  
+//  }
+//  tft.drawString("GPS lat/lon", x+6, y+50, GFXFF);
 
   /*****************************************************************************
    * GPS speed 
    ****************************************************************************/  
   //  double gps_speed_kmph
-  x = 170; y = 142; w = 140; h = 70;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
+  x = 122; y = 136; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
   if (GPS_DATA_RECVD_OK) {
     //tft.setFreeFont(FSSBO18);
-    tft.loadFont(NotoSansBold36);
-    tft.drawNumber(myData.gps_speed_kmph, x+20, y+10);  
-    tft.unloadFont();
+    tft.setFreeFont(FSSBO18);
+    tft.drawNumber(myData.gps_speed_kmph, x+6, y+8);  
   }
   tft.setFreeFont(FF1);
-  tft.drawString("Ground Speed (K/h)", x+6, y+50, GFXFF);
+  tft.drawString("Speed", x+10, y+42, GFXFF);
 
   /*****************************************************************************
-   * Batt 
+   * Free
    ****************************************************************************/
-  x = 4; y = 38; w = 82; h = 64;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.setFreeFont(FSSBO18);
-  tft.drawFloat(myData.batt_v, 1, x+5, y+8);  
-  tft.setFreeFont(FF1);
-  tft.drawString("Batt V", x+8, y+42, GFXFF);
+  x = 122; y = 202; w = 110; h = 64;
+  tft.drawRoundRect(x, y, w, h, 10, TFT_WHITE);
 
-  /*****************************************************************************
-   * Temp 
-   ****************************************************************************/
-  x = 4; y = 104; w = 82; h = 64;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.setFreeFont(FSSBO18);
-  tft.drawFloat(myData.temp, 1, x+5, y+8);  
-  tft.setFreeFont(FF1);
-  tft.drawString("Temp C", x+8, y+42, GFXFF);
-
-  /*****************************************************************************
-   * Humidity 
-   ****************************************************************************/
-  x = 4; y = 170; w = 82; h = 64;
-  tft.drawRoundRect(x, y, w, h, 10, TFT_GREY);
-  tft.setFreeFont(FSSBO18);
-  tft.drawFloat(myData.hum, 0, x+5, y+8);  
-  tft.setFreeFont(FF1);
-  tft.drawString("Humid.", x+8, y+42, GFXFF);  
-
-  delay(1000);
+  // version
+  tft.setFreeFont(FF9);
+  String rev = " ";
+  rev += String('v') + version_major() + "." + version_minor() + "." + version_patch();
+  tft.drawString(rev, 152, 298, GFXFF);
 }
 
 // -------------------------------------------------------------------------
-// List files in ESP8266 or ESP32 SPIFFS memory
+// List files in SPIFFS memory
 // -------------------------------------------------------------------------
 void listFiles(void) {
   Serial.println();
   Serial.println("SPIFFS files found:");
 
-#ifdef ESP32
   listDir(SPIFFS, "/", true);
-#else
-  fs::Dir dir = SPIFFS.openDir("/"); // Root directory
-  String  line = "=====================================";
-
-  Serial.println(line);
-  Serial.println("  File name               Size");
-  Serial.println(line);
-
-  while (dir.next()) {
-    String fileName = dir.fileName();
-    Serial.print(fileName);
-    int spaces = 25 - fileName.length(); // Tabulate nicely
-    if (spaces < 0) spaces = 1;
-    while (spaces--) Serial.print(" ");
-    fs::File f = dir.openFile("r");
-    Serial.print(f.size()); Serial.println(" bytes");
-    yield();
-  }
-
-  Serial.println(line);
-#endif
   Serial.println();
   delay(1000);
 }
 
-#ifdef ESP32
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   Serial.printf("Listing directory: %s\n", dirname);
 
@@ -273,8 +280,6 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
       while (spaces--) Serial.print(" ");
       Serial.println(fileSize + " bytes");
     }
-
     file = root.openNextFile();
   }
 }
-#endif
