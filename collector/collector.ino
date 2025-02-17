@@ -1,5 +1,6 @@
 /*
 */
+#include <../common/common.h>
 #include <math.h>
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -69,26 +70,6 @@ bool BATT_OK = false;
 
 // Variable to store if sending data was successful
 String success;
-
-//Structure example to send data
-//Must match the receiver structure
-typedef struct struct_message {
-    int id;
-    float temp;
-    float hum;
-    unsigned int readingId;
-    uint8_t speed_kph;
-    uint8_t speed_rpm;
-    int8_t fuel_perc;
-    long gps_lat; // latitude - ex '30.239773'
-    long gps_lng; // longitude - ex '-97.815685'
-    uint8_t gps_time_hour;
-    uint8_t gps_time_minute;
-    uint8_t gps_time_second;
-    double gps_speed_kmph; // current ground speed
-    double gps_altitude_meters; // latest altitude fix
-    int8_t gps_age; // mls since last update
-} struct_message;
 
 // Create a struct_message to hold outgoing readings
 struct_message outgoingReadings;
@@ -169,13 +150,17 @@ void setup() {
   // setup temp sensor
   dht.begin();
 
+  String software = "esp32_bike ";
+  software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
   // output OLED
   u8g2.setCursor(0, 0);
   u8g2.print("// BMW R1100GS");
   u8g2.setCursor(0, 10);
-  u8g2.print("   data collector");
+  u8g2.print(software);
   u8g2.setCursor(0, 20);
-  u8g2.print("   setup..");
+  u8g2.print("data collector");
+  u8g2.setCursor(0, 30);
+  u8g2.print("setup..");
   u8g2.sendBuffer();
   delay(10000);
   SETUP_OK = true;
@@ -302,6 +287,7 @@ void loop() {
 
   // Set values to send
   outgoingReadings.fuel_perc = 50;
+  outgoingReadings.batt_v = 12.1;
   
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
@@ -385,13 +371,6 @@ void sendGPSInfo() {
   } else {
     Serial.print(F("INVALID"));
   }
-  if (gps.date.isValid()) {
-    // Serial.print("DEBUG: GPS date value: ");
-    // Serial.println(gps.date.value());
-    outgoingReadings.gps_date = gps.date.value();
-  } else {
-    Serial.print(F("INVALID"));
-  }
   if (gps.time.isValid()) {
     // Serial.print("DEBUG: GPS time value: ");
     // Serial.println(gps.time.value());   
@@ -401,6 +380,7 @@ void sendGPSInfo() {
   } else {
     Serial.print(F("INVALID"));
   }
+  // TODO: dummy data
   outgoingReadings.gps_speed_kmph = 122;
   outgoingReadings.gps_altitude_meters = 12;
   outgoingReadings.gps_age = 5;
