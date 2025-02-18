@@ -92,51 +92,21 @@ void loop() {
   }
   if (ESP_DATA_RECVD_OK) {
     draw();
-  } else {
-    draw_no_esp();
   }
   delay(5000);
 }
 
 void draw_no_esp() {
 
-  tft.fillScreen(TFT_GREY);            // Clear screen
   tft.setTextColor(TFT_WHITE);
   tft.setFreeFont(FF1);
-
-  int32_t lx = 0; int32_t ly = 0; int32_t ls = 0;
-  /*****************************************************************************
-   * 'led' warning lights
-   ****************************************************************************/
-  lx = 20; ly = 274; ls = 5;
-  tft.setFreeFont(&Orbitron_Medium_20);
-  tft.drawString("esp", lx, ly, GFXFF);  
-  if (ESP_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_GREEN);
-  } else {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_RED);
-  }
-
-  lx = 20; ly = 292; ls = 5;
-  tft.drawString("gps", lx, ly, GFXFF);  
-  if (GPS_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_GREEN);
-  } else {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_RED);
-  }
-
-  // version
-  tft.setFreeFont(&Orbitron_Light_24);
-  String rev = " ";
-  rev += String('v') + version_major() + "." + version_minor() + "." + version_patch();
-  tft.drawString(rev, 160, 288, GFXFF);
 
 }
 
 void draw() {
 
   tft.setTextColor(TFT_WHITE);
-  tft.setFreeFont(FF1);
+  tft.setFreeFont(FSS9);
 
   int32_t lx = 0; int32_t ly = 0; int32_t ls = 0;
   /*****************************************************************************
@@ -148,21 +118,22 @@ void draw() {
    *  gps -> green  : outdoors, data received ok
    *  gps -> red   : data not received
    ****************************************************************************/
-  lx = 20; ly = 274; ls = 5;
-  tft.setFreeFont(&Orbitron_Medium_20);
+  lx = 20; ly = 5; ls = 4;
+  tft.setFreeFont(FSS9);
   tft.drawString("esp", lx, ly, GFXFF);  
   if (ESP_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_GREEN);
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_GREEN);
   } else {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_RED);
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_RED);
   }
 
-  lx = 20; ly = 292; ls = 5;
+  lx = 72; ly = 5; ls = 4;
+  tft.setFreeFont(FSS9);
   tft.drawString("gps", lx, ly, GFXFF);  
   if (GPS_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_GREEN);
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_GREEN);
   } else {
-    tft.fillSmoothCircle(lx-10, ly+14, ls, TFT_RED);
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_RED);
   }
 
   tft.setTextColor(TFT_ORANGE);
@@ -170,7 +141,7 @@ void draw() {
   /*****************************************************************************
    * Batt 
    ****************************************************************************/
-  x = 8; y = 4; w = 110; h = 64;
+  x = 8; y = 30; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
@@ -181,7 +152,7 @@ void draw() {
   /*****************************************************************************
    * Temp 
    ****************************************************************************/
-  x = 8; y = 70; w = 110; h = 64;
+  x = 8; y = 96; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
@@ -192,7 +163,7 @@ void draw() {
   /*****************************************************************************
    * Humidity 
    ****************************************************************************/
-  x = 8; y = 136; w = 110; h = 64;
+  x = 8; y = 162; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
@@ -203,12 +174,12 @@ void draw() {
   /*****************************************************************************
    * Free
    ****************************************************************************/
-  x = 8; y = 202; w = 110; h = 64;
+  x = 8; y = 228; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   /*****************************************************************************
    * GPS Time 
    ****************************************************************************/
-  x = 122; y = 4; w = 110; h = 64;
+  x = 122; y = 30; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(&Orbitron_Light_32);
   if (GPS_DATA_RECVD_OK) {
@@ -228,13 +199,13 @@ void draw() {
   /*****************************************************************************
    * GPS locations
    ****************************************************************************/  
-  x = 122; y = 70; w = 110; h = 64;
+  x = 122; y = 96; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   /*****************************************************************************
    * GPS speed 
    ****************************************************************************/  
   //  double gps_speed_kmph
-  x = 122; y = 136; w = 110; h = 64;
+  x = 122; y = 162; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   if (GPS_DATA_RECVD_OK) {
     tft.setFreeFont(&Orbitron_Light_32);
@@ -247,7 +218,7 @@ void draw() {
   /*****************************************************************************
    * Fuel
    ****************************************************************************/
-  x = 122; y = 202; w = 110; h = 64;
+  x = 122; y = 228; w = 110; h = 64;
   tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
@@ -258,10 +229,10 @@ void draw() {
 
   // version
   tft.setTextColor(TFT_WHITE);
-  tft.setFreeFont(&Orbitron_Light_24);
+  tft.setFreeFont(FSSO9);
   String rev = " ";
   rev += String('v') + version_major() + "." + version_minor() + "." + version_patch();
-  tft.drawString(rev, 160, 288, GFXFF);
+  tft.drawString(rev, 162, 300, GFXFF);
 }
 
 // -------------------------------------------------------------------------
