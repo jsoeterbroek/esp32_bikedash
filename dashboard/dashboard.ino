@@ -46,7 +46,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(myData.gps_lng);
   Serial.println("-------");
   ESP_DATA_RECVD_OK = true;
-  }
 }
 
 void setup() {
@@ -88,14 +87,50 @@ void setup() {
 
 void loop() {
 
+  if (myData.gps_status) {
+    GPS_DATA_RECVD_OK = true;
+  }
   if (ESP_DATA_RECVD_OK) {
-    if (myData.gps_status) {
-      GPS_DATA_RECVD_OK = true;
-    }
     draw();
+  } else {
+    draw_no_esp();
+  }
+  delay(5000);
+}
+
+void draw_no_esp() {
+
+  tft.fillScreen(TFT_GREY);            // Clear screen
+  tft.setTextColor(TFT_WHITE);
+  tft.setFreeFont(FF1);
+
+  int32_t lx = 0; int32_t ly = 0; int32_t ls = 0;
+  /*****************************************************************************
+   * 'led' warning lights
+   ****************************************************************************/
+  lx = 4; ly = 270;
+  tft.drawString("Data:", lx, ly, GFXFF);  
+  lx = 20; ly = 285; ls = 4;
+  tft.drawString("esp", lx, ly, GFXFF);  
+  if (ESP_DATA_RECVD_OK) {
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
+  } else {
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_RED);
+  }
+  lx = 20; ly = 298; ls = 4;
+  tft.drawString("gps", lx, ly, GFXFF);  
+  if (GPS_DATA_RECVD_OK) {
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
+  } else {
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_RED);
   }
 
-  delay(5000);
+  // version
+  tft.setFreeFont(FF9);
+  String rev = " ";
+  rev += String('v') + version_major() + "." + version_minor() + "." + version_patch();
+  tft.drawString(rev, 152, 298, GFXFF);
+
 }
 
 void draw() {
