@@ -4,7 +4,7 @@
  */
 
 #define VERSION_MAJOR 1
-#define VERSION_MINOR 1
+#define VERSION_MINOR 2
 #define VERSION_PATCH 1
 
 // when developing indoors GPS does not work, enable this to work with 
