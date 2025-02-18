@@ -29,6 +29,7 @@ typedef struct struct_message {
   float hum;
   unsigned int readingId;
   int8_t fuel_perc;
+  bool gps_status;
   long gps_lat; // latitude - ex '30.239773'
   long gps_lng; // longitude - ex '-97.815685'
   uint8_t gps_time_hour;

@@ -65,6 +65,8 @@ bool GSM_OK = false;
 bool TEMP_OK = false;
 bool BATT_OK = false;
 
+gps_status = false;
+
 // Variable to store if sending data was successful
 String success;
 
@@ -258,14 +260,16 @@ void loop() {
 #else
   while (ss.available() > 0) {
     if (gps.encode(ss.read())) {
+      displayGPSStatus();
       displayGPSInfo();
       GPS_OK = true;
       sendGPSInfo();
       GPS_DATA_SEND_OK = true;
+      gps_status = true;
     }
   }
   if (millis() > 5000 && gps.charsProcessed() < 10) {
-    Serial.println(F("No GPS detected: check wiring."));
+    Serial.println(F("ERROR: No GPS data.."));
     GPS_OK = false;
     GPS_DATA_SEND_OK = false;
   }
@@ -302,6 +306,11 @@ void loop() {
 
   display_status_lcd();
   delay(8000);
+}
+
+void displayGPSStatus() {
+  Serial.print(F("Satellites: ")); 
+  Serial.println(gps.satellites.value());
 }
 
 void displayGPSInfo() {
@@ -382,6 +391,7 @@ void sendGPSInfo() {
   } else {
     Serial.print(F("INVALID"));
   }
+  outgoingReadings.gps_status = gps_status;
   // TODO: dummy data
   outgoingReadings.gps_speed_kmph = 122;
   outgoingReadings.gps_altitude_meters = 12;

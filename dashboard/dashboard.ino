@@ -46,8 +46,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(myData.gps_lng);
   Serial.println("-------");
   ESP_DATA_RECVD_OK = true;
-  // TODO: check actual GPS data
-  GPS_DATA_RECVD_OK = true;
+  }
 }
 
 void setup() {
@@ -69,6 +68,7 @@ void setup() {
     return;
   }
   ESP_SETUP_OK = true;
+
   // Once ESPNow is successfully Init, we will register for recv CB
   // to get recv packer info
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
@@ -83,13 +83,15 @@ void setup() {
   String software = " esp32_bike ";
   software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
   tft.drawString(software, 14, 190, GFXFF);
-
   delay(5000); // 5 seconds
 }
 
 void loop() {
 
   if (ESP_DATA_RECVD_OK) {
+    if (myData.gps_status) {
+      GPS_DATA_RECVD_OK = true;
+    }
     draw();
   }
 
@@ -107,35 +109,27 @@ void draw() {
    * 'led' warning lights
    *
    *  esp -> green  : data received ok
-   *  esp -> grey   : data not received
+   *  esp -> red   : data not received
    * 
-   *  gps -> orange : indoors, (test) data received ok
    *  gps -> green  : outdoors, data received ok
-   *  gps -> grey   : data not received
+   *  gps -> red   : data not received
    ****************************************************************************/
-
+  lx = 4; ly = 270;
+  tft.drawString("Data:", lx, ly, GFXFF);  
   lx = 20; ly = 285; ls = 4;
   tft.drawString("esp", lx, ly, GFXFF);  
   if (ESP_DATA_RECVD_OK) {
     tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
   } else {
-    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_RED);
   }
 
   lx = 20; ly = 298; ls = 4;
   tft.drawString("gps", lx, ly, GFXFF);  
-  if (GPS_INDOORS_TEST) {
-    if (GPS_DATA_RECVD_OK) {
-      tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_ORANGE);
-    } else {
-       tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
-    }
+  if (GPS_DATA_RECVD_OK) {
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
   } else {
-    if (GPS_DATA_RECVD_OK) {
-      tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREEN);
-    } else {
-      tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_GREY);
-    }
+    tft.fillSmoothCircle(lx-10, ly+8, ls, TFT_RED);
   }
 
   int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
