@@ -176,7 +176,7 @@ void draw() {
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.batt_v, 1, x+5, y+8);  
   tft.setFreeFont(FF1);
-  tft.drawString("Batt V", x+8, y+42, GFXFF);
+  tft.drawString("Battery", x+8, y+42, GFXFF);
 
   /*****************************************************************************
    * Temp 
@@ -186,7 +186,7 @@ void draw() {
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.temp, 1, x+5, y+8);  
   tft.setFreeFont(FF1);
-  tft.drawString("Temp C", x+8, y+42, GFXFF);
+  tft.drawString("Temp", x+8, y+42, GFXFF);
 
   /*****************************************************************************
    * Humidity 
@@ -196,7 +196,7 @@ void draw() {
   tft.setFreeFont(FSSBO18);
   tft.drawFloat(myData.hum, 0, x+5, y+8);  
   tft.setFreeFont(FF1);
-  tft.drawString("Humid.", x+8, y+42, GFXFF);  
+  tft.drawString("Humidity", x+8, y+42, GFXFF);  
 
   /*****************************************************************************
    * Free
