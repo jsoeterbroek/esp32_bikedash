@@ -92,14 +92,44 @@ void loop() {
   }
   if (ESP_DATA_RECVD_OK) {
     draw();
+  } else {
+    draw_no_esp();
   }
-  delay(5000);
+  delay(1000);
 }
 
 void draw_no_esp() {
 
   tft.setTextColor(TFT_WHITE);
-  tft.setFreeFont(FF1);
+  tft.setFreeFont(FSS9);
+
+  int32_t lx = 0; int32_t ly = 0; int32_t ls = 0;
+  /*****************************************************************************
+   * 'led' warning lights
+   *
+   *  esp -> green  : data received ok
+   *  esp -> red   : data not received
+   * 
+   *  gps -> green  : outdoors, data received ok
+   *  gps -> red   : data not received
+   ****************************************************************************/
+
+  lx = 20; ly = 5; ls = 4;
+  tft.setFreeFont(FSS9);
+  tft.drawString("esp", lx, ly, GFXFF);  
+  if (ESP_DATA_RECVD_OK) {
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_GREEN);
+  } else {
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_RED);
+  }
+  lx = 72; ly = 5; ls = 4;
+  tft.setFreeFont(FSS9);
+  tft.drawString("gps", lx, ly, GFXFF);  
+  if (GPS_DATA_RECVD_OK) {
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_GREEN);
+  } else {
+    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_RED);
+  }
 
 }
 

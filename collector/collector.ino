@@ -65,7 +65,7 @@ bool GSM_OK = false;
 bool TEMP_OK = false;
 bool BATT_OK = false;
 
-gps_status = false;
+bool gps_status = false;
 
 // Variable to store if sending data was successful
 String success;
@@ -292,7 +292,7 @@ void loop() {
   outgoingReadings.temp = t;
 
   // Set values to send
-  outgoingReadings.fuel_perc = 50;
+  outgoingReadings.fuel_perc = 0;
   outgoingReadings.batt_v = 12.1;
   
   // Send message via ESP-NOW
