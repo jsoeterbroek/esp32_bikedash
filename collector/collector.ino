@@ -353,20 +353,24 @@ void sendGPSInfo() {
      outgoingReadings.gps_lat = lat;
      outgoingReadings.gps_lng = lon;
    } else {
-     Serial.println(F("INVALID"));
+     Serial.println(F("LOCATION INVALID"));
    }
    if (gps.time.isValid()) {
-     // Serial.print("DEBUG: GPS time value: ");
-     // Serial.println(gps.time.value());   
      outgoingReadings.gps_time_hour = gps.time.hour();
-     outgoingReadings.gps_time_minute = gps.time.value();
-     outgoingReadings.gps_time_second = gps.time.value();
+     outgoingReadings.gps_time_minute = gps.time.minute();
+     outgoingReadings.gps_time_second = gps.time.second();
    } else {
-     Serial.println(F("INVALID"));
+     Serial.println(F("TIME INVALID"));
    }
+   if (gps.speed.isValid()) {
+     outgoingReadings.gps_speed_kmph = gps.speed.kmph();
+   } else {
+     Serial.println(F("SPEED INVALID"));
+     outgoingReadings.gps_speed_kmph = 0;
+   }
+
    outgoingReadings.gps_status = gps_status;
    // TODO: dummy data
-   outgoingReadings.gps_speed_kmph = 122;
    outgoingReadings.gps_altitude_meters = 12;
    outgoingReadings.gps_age = 5;
 }
