@@ -9,7 +9,7 @@
 #include <U8g2lib.h>
 #include <esp_now.h>
 #include <WiFi.h>
-#include <SoftwareSerial.h>
+#include <HardwareSerial.h>
 #include <TinyGPSPlus.h>
 
 // REPLACE WITH THE MAC Address of your receiver (dashboard)
@@ -29,14 +29,14 @@ uint8_t broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
 // VCC  ---> 5V
 // GND  ---> GND
 // (DATA) to a digital GPIO pin 4
-//
-// GPS module (neo-6m)
-// VCC  ---> 5V
-// GND  ---> GND
-// RX   ---> software serial RX -> pin 1
-// TX   ---> software serial TX -> pin 0
-// pins 4(rx) and 3(tx).
 
+// GPS module (neo-6m)
+// GPS Tx --> GPIO5
+// GPS Rx --> GPIO2
+//
+#define RXD2 5
+#define TXD2 2
+#define GPS_BAUD 9600
 
 // start OLED display
 #define OLED_SDA 6
@@ -96,16 +96,15 @@ void u8g2_prepare() {
 }
 
 // GPS
-static const int RXPin = 1, TXPin = 0;
-static const uint32_t GPSBaud = 4800;
-
 // The TinyGPSPlus object
 TinyGPSPlus gps;
-SoftwareSerial ss(RXPin, TXPin);
+HardwareSerial gpsSerial(1); // use UART1
 
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
+  gpsSerial.begin(GPS_BAUD, SERIAL_8N1, RXD2, TXD2);
+  Serial.println("gps.Serial started at 9600 baud rate");
 
   // initialize OLED
   u8g2.begin();
@@ -154,8 +153,6 @@ void setup() {
   u8g2.sendBuffer();
   delay(10000);
   SETUP_OK = true;
-
-  ss.begin(GPSBaud);
 
 }
 
@@ -236,31 +233,12 @@ void display_status_lcd() {
  
 void loop() {
  
-#ifdef GPS_INDOORS_TEST
-  // sample NMEA stream
-  const char *gpsStreamDemo =
-    "$GPRMC,045103.000,A,3014.1984,N,09749.2872,W,0.67,161.46,030913,,,A*7C\r\n"
-    "$GPGGA,045104.000,3014.1985,N,09749.2873,W,1,09,1.2,211.6,M,-22.5,M,,0000*62\r\n"
-    "$GPRMC,045200.000,A,3014.3820,N,09748.9514,W,36.88,65.02,030913,,,A*77\r\n"
-    "$GPGGA,045201.000,3014.3864,N,09748.9411,W,1,10,1.2,200.8,M,-22.5,M,,0000*6C\r\n"
-    "$GPRMC,045251.000,A,3014.4275,N,09749.0626,W,0.51,217.94,030913,,,A*7D\r\n"
-    "$GPGGA,045253.000,3014.4273,N,09749.0628,W,1,09,1.3,206.9,M,-22.5,M,,0000*6F\r\n";
- 
-  while (*gpsStreamDemo) {
-    if (gps.encode(*gpsStreamDemo++)) {
-      GPS_OK = true;
-      Serial.println("++++++++++++++++ DEMO DATA ++++++");
-      displayGPSInfo();
-      Serial.println("++++++++++++++++ DEMO DATA ++++++");
-      sendGPSInfo();
-      GPS_DATA_SEND_OK = true;
-      GPS_DEMO_DATA_SEND_ONCE = true;
-    }
-  }
-#else
-  while (ss.available() > 0) {
-    if (gps.encode(ss.read())) {
-      displayGPSStatus();
+//  while (gpsSerial.available() > 0) {
+//    char gpsData = gpsSerial.read();
+//    Serial.print(gpsData);
+//  }
+  while (gpsSerial.available() > 0) {
+    if (gps.encode(gpsSerial.read())) {
       displayGPSInfo();
       GPS_OK = true;
       sendGPSInfo();
@@ -273,7 +251,6 @@ void loop() {
     GPS_OK = false;
     GPS_DATA_SEND_OK = false;
   }
-#endif
 
   Serial.println(F("*----------------------------------------*"));
   // Get temperature event and print its value.
@@ -308,19 +285,15 @@ void loop() {
   delay(8000);
 }
 
-void displayGPSStatus() {
-  Serial.print(F("Satellites: ")); 
-  Serial.println(gps.satellites.value());
-}
-
 void displayGPSInfo() {
-  Serial.print(F("Location: ")); 
+  Serial.print(F("Satellites: ")); 
+  Serial.println(gps.satellites.value());//   Serial.print(F("Location: ")); 
   if (gps.location.isValid()) {
     Serial.print(gps.location.lat(), 6);
     Serial.print(F(","));
     Serial.print(gps.location.lng(), 6);
   } else {
-    Serial.print(F("INVALID"));
+    Serial.println(F("Location data invalid"));
   }
   Serial.print(F("  Date/Time: "));
   if (gps.date.isValid()) {
@@ -330,70 +303,70 @@ void displayGPSInfo() {
     Serial.print(F("/"));
     Serial.print(gps.date.year());
   } else {
-    Serial.print(F("INVALID"));
+    Serial.println(F("Datetime data invalid"));
   }
   Serial.print(F(" "));
   if (gps.time.isValid()) {
     if (gps.time.hour() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.hour());
-    Serial.print(F(":"));
+      Serial.print(gps.time.hour());
+      Serial.print(F(":"));
     if (gps.time.minute() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.minute());
-    Serial.print(F(":"));
+      Serial.print(gps.time.minute());
+      Serial.print(F(":"));
     if (gps.time.second() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.second());
-    Serial.print(F("."));
+      Serial.print(gps.time.second());
+      Serial.print(F("."));
     if (gps.time.centisecond() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.centisecond());
+      Serial.print(gps.time.centisecond());
   } else {
-    Serial.print(F("INVALID"));
+     Serial.println(F("Time data invalid"));
   }
   Serial.println();
 }
 
 void sendGPSInfo() {
-  if (gps.location.isValid()) {
-    long scale=10000000UL; //10 milion. Why ? This technique is called - integer scaling.
-    /*
-    The GPS Module is givin you raw LAT and LNG data. LAT and LNG are given in degrees and 
-    billionths, as two separate values.
-    The raw data won't be given to you in a decimal format such as 50.123456, but reather 
-    as 50 degrees and 1234567895 billionths.
-    You want to store LAT (or LGN) in one variable (and not two, the virst variable for degrees, 
-    the other one for billionts).
-    If you save it as a float number, it will be preceise only up to 5 decimal places.
-    So here comes the important trick - you will store all the degrees and billionth values in 
-    a long data type variable.
-    Degrees will be multiplied with the variable scale(10 milion) 
-    - e.g. 30 degrees N * 10000000UL = 300000000  (9 digits)
-    Billionths will be devided by 100UL. Why ? To get a 7 digits number, that will be added to 
-    the 9 digits degree value
-    (You want to leave alone the first 2 digits of your degrees value. Billionths should begin 
-    from the third digit)
-    This technique is called integer scaleing.
-    */
-    long lat; long lon;
-    lat = gps.location.rawLat().deg * scale + gps.location.rawLat().billionths / 100UL;
-    if(gps.location.rawLat().negative) lat=-lat;
-    lon = gps.location.rawLng().deg * scale + gps.location.rawLng().billionths / 100UL;
-    if(gps.location.rawLng().negative) lon=-lon;
-    outgoingReadings.gps_lat = lat;
-    outgoingReadings.gps_lng = lon;
-  } else {
-    Serial.print(F("INVALID"));
-  }
-  if (gps.time.isValid()) {
-    // Serial.print("DEBUG: GPS time value: ");
-    // Serial.println(gps.time.value());   
-    outgoingReadings.gps_time_hour = gps.time.hour();
-    outgoingReadings.gps_time_minute = gps.time.value();
-    outgoingReadings.gps_time_second = gps.time.value();
-  } else {
-    Serial.print(F("INVALID"));
-  }
-  outgoingReadings.gps_status = gps_status;
-  // TODO: dummy data
-  outgoingReadings.gps_speed_kmph = 122;
-  outgoingReadings.gps_altitude_meters = 12;
-  outgoingReadings.gps_age = 5;
+   if (gps.location.isValid()) {
+     long scale=10000000UL; //10 milion. Why ? This technique is called - integer scaling.
+     /*
+     The GPS Module is givin you raw LAT and LNG data. LAT and LNG are given in degrees and 
+     billionths, as two separate values.
+     The raw data won't be given to you in a decimal format such as 50.123456, but reather 
+     as 50 degrees and 1234567895 billionths.
+     You want to store LAT (or LGN) in one variable (and not two, the virst variable for degrees, 
+     the other one for billionts).
+     If you save it as a float number, it will be preceise only up to 5 decimal places.
+     So here comes the important trick - you will store all the degrees and billionth values in 
+     a long data type variable.
+     Degrees will be multiplied with the variable scale(10 milion) 
+     - e.g. 30 degrees N * 10000000UL = 300000000  (9 digits)
+     Billionths will be devided by 100UL. Why ? To get a 7 digits number, that will be added to 
+     the 9 digits degree value
+     (You want to leave alone the first 2 digits of your degrees value. Billionths should begin 
+     from the third digit)
+     This technique is called integer scaleing.
+     */
+     long lat; long lon;
+     lat = gps.location.rawLat().deg * scale + gps.location.rawLat().billionths / 100UL;
+     if(gps.location.rawLat().negative) lat=-lat;
+     lon = gps.location.rawLng().deg * scale + gps.location.rawLng().billionths / 100UL;
+     if(gps.location.rawLng().negative) lon=-lon;
+     outgoingReadings.gps_lat = lat;
+     outgoingReadings.gps_lng = lon;
+   } else {
+     Serial.println(F("INVALID"));
+   }
+   if (gps.time.isValid()) {
+     // Serial.print("DEBUG: GPS time value: ");
+     // Serial.println(gps.time.value());   
+     outgoingReadings.gps_time_hour = gps.time.hour();
+     outgoingReadings.gps_time_minute = gps.time.value();
+     outgoingReadings.gps_time_second = gps.time.value();
+   } else {
+     Serial.println(F("INVALID"));
+   }
+   outgoingReadings.gps_status = gps_status;
+   // TODO: dummy data
+   outgoingReadings.gps_speed_kmph = 122;
+   outgoingReadings.gps_altitude_meters = 12;
+   outgoingReadings.gps_age = 5;
 }
