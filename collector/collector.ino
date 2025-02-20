@@ -12,9 +12,16 @@
 #include <HardwareSerial.h>
 #include <TinyGPSPlus.h>
 
-// REPLACE WITH THE MAC Address of your receiver (dashboard)
-// ESP-2432S032 1c:69:20:cd:4c:e8
-uint8_t broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
+// MAC Address of your dashboard receiver
+// 1c:69:20:cd:4c:e8
+uint8_t dashboard_broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
+
+// MAC Address of your esphome receiver
+// cc:ba:97:08:51:44
+uint8_t esphome_broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
+
+// MAC Address of collector
+// 40:4c:ca:5f:7d:54
 
 // PINOUTS
 // 
@@ -67,24 +74,24 @@ bool BATT_OK = false;
 
 bool gps_status = false;
 
-// Variable to store if sending data was successful
-String success;
-
 // Create a struct_message to hold outgoing readings
 struct_message outgoingReadings;
 
 esp_now_peer_info_t peerInfo;
 
-// Callback when data is sent
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("\r\nLast Packet Send Status:\t");
+  char macStr[18];
+  Serial.print("Packet to: ");
+  // Copies the sender mac address to a string
+  snprintf(macStr, sizeof(macStr), "%02x:%02x",
+           mac_addr[0], mac_addr[1]);
+  Serial.print(macStr);
+  Serial.print(" send status:\t");
   Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
   if (status ==0){
-    success = "Delivery Success :)";
     ESP_SEND_OK = true;
-  } else{
-    success = "Delivery Fail :(";
   }
+
 }
 
 void u8g2_prepare() {
@@ -125,17 +132,22 @@ void setup() {
   // get the status of Trasnmitted packet
   esp_now_register_send_cb(OnDataSent);
   
-  // Register peer
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  // register peer
   peerInfo.channel = 0;  
   peerInfo.encrypt = false;
-  
-  // Add peer        
+  // register first peer  
+  memcpy(peerInfo.peer_addr, dashboard_broadcastAddress, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK){
     Serial.println("Failed to add peer");
     return;
   }
-
+  // register second peer  
+  memcpy(peerInfo.peer_addr, esphome_broadcastAddress, 6);
+  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+    Serial.println("Failed to add peer");
+    return;
+  }
+  
   // setup temp sensor
   dht.begin();
 
@@ -273,7 +285,8 @@ void loop() {
   outgoingReadings.batt_v = 12.1;
   
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+  //esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
+  esp_err_t result = esp_now_send(0, (uint8_t *) &outgoingReadings, sizeof(outgoingReadings));
    
   if (result == ESP_OK) {
     Serial.println("ESP_NOW Sent with success");
@@ -282,7 +295,7 @@ void loop() {
   }
 
   display_status_lcd();
-  delay(8000);
+  delay(2000);
 }
 
 void displayGPSInfo() {
