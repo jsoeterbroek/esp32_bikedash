@@ -1,4 +1,0 @@
-Library Name                        Version    Author                    Architecture    Type
------------------------------------ ---------- ------------------------- --------------- -------
-EspSoftwareSerial                   8.1.0      Dirk Kaar, Peter Lerup    esp8266,esp32   user
-TinyGPSPlus                         1.0.3      Mikal Hart                *               user
