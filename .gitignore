@@ -2,3 +2,6 @@ binding/
 build/
 lvgl/
 *.bak
+secrets.yaml
+venv/
+.esphome/
