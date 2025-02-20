@@ -35,8 +35,8 @@ typedef struct struct_message {
   uint8_t gps_time_hour;
   uint8_t gps_time_minute;
   uint8_t gps_time_second;
-  double gps_speed_kmph; // current ground speed
-  double gps_altitude_meters; // latest altitude fix
+  float gps_speed_kmph; // current ground speed
+  float gps_altitude_meters; // latest altitude fix
   int8_t gps_age; // mls since last update
 } struct_message;
 
