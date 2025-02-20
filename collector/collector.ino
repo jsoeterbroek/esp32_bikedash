@@ -17,8 +17,9 @@
 uint8_t dashboard_broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
 
 // MAC Address of your esphome receiver
+// and/or ESPNow MQTT hub
 // cc:ba:97:08:51:44
-uint8_t esphome_broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
+uint8_t esphome_broadcastAddress[] = {0xcc, 0xba, 0x97, 0x08, 0x51, 0x44};
 
 // MAC Address of collector
 // 40:4c:ca:5f:7d:54
