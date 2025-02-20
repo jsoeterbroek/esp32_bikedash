@@ -7,10 +7,15 @@
 #include <TFT_eSPI.h>
 #include "Free_Fonts.h" // Include the header file attached to this sketch
 #include <Orbitron_Medium_20.h>
+#include <Latin_Hiragana_24.h>
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
-#define TFT_GREY 0x5AEB
+#define TFT_GREY      0x5AEB   // grey
+#define FG_COLOR      0x9986   // red
+#define RECT_FG_COLOR 0x5AEB   // grey
+#define RECT_BG_COLOR 0xE73C   // white
+#define BG_COLOR      0x5AEB   // grey
 
 TFT_eSPI tft = TFT_eSPI();
 
@@ -36,14 +41,13 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print("Bytes received: ");
   Serial.println(len);
   Serial.println("GPS data: ");
-  Serial.println("  GPS time: ");
+  Serial.println("  time: ");
   Serial.print("    hour: "); Serial.println(myData.gps_time_hour);
   Serial.print("    minute: "); Serial.println(myData.gps_time_minute);
   Serial.print("    second: "); Serial.println(myData.gps_time_second);
-  // Serial.print("  GPS lat: ");
-  // Serial.println(myData.gps_lat);
-  // Serial.print("  GPS long: ");
-  // Serial.println(myData.gps_lng);
+  Serial.println("  location: ");
+  Serial.print("    lat: "); Serial.println(myData.gps_lat);
+  Serial.print("    long: "); Serial.println(myData.gps_lng);
   // Serial.println("-------");
   ESP_DATA_RECVD_OK = true;
 }
@@ -52,7 +56,7 @@ void setup() {
 
   tft.init();
   tft.setRotation(0);
-  tft.fillScreen(TFT_WHITE);
+  tft.fillScreen(BG_COLOR);
 
   //Initialize Serial Monitor
   Serial.begin(115200);
@@ -72,7 +76,6 @@ void setup() {
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
   // setup 'splash' screen
-  tft.fillScreen(TFT_GREY);            // Clear screen
   tft.setTextColor(TFT_WHITE); 
   tft.setFreeFont(&Orbitron_Medium_20);
   tft.drawString("// BMW R1100GS", 6, 104, GFXFF);
@@ -80,7 +83,7 @@ void setup() {
   software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
   tft.drawString(software, 6, 190, GFXFF);
   delay(6000); // 6 seconds
-  tft.fillScreen(TFT_GREY);            // Clear screen
+  tft.fillScreen(BG_COLOR);            // Clear screen
 }
 
 void loop() {
@@ -98,7 +101,7 @@ void loop() {
 
 void draw_no_esp() {
 
-  tft.setTextColor(TFT_WHITE);
+  tft.setTextColor(FG_COLOR);
   tft.setFreeFont(FSS9);
 
   int32_t lx = 0; int32_t ly = 0; int32_t ls = 0;
@@ -183,13 +186,14 @@ void draw() {
     tft.println(gps_time);  
   }
 
-  tft.setTextColor(TFT_ORANGE);
+  tft.setTextColor(FG_COLOR);
   int32_t x = 0; int32_t y = 0; int32_t w = 0; int32_t h = 0;
   /*****************************************************************************
    * Batt 
    ****************************************************************************/
   x = 8; y = 32; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.setTextColor(RECT_FG_COLOR);
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
   tft.println(myData.batt_v, 1);
@@ -199,8 +203,9 @@ void draw() {
   /*****************************************************************************
    * Temp 
    ****************************************************************************/
-  x = 8; y = 98; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+  x = 8; y = 100; w = 110; h = 64;
+  tft.setTextColor(RECT_FG_COLOR);
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
   tft.println(myData.temp, 1);
@@ -210,8 +215,8 @@ void draw() {
   /*****************************************************************************
    * Humidity 
    ****************************************************************************/
-  x = 8; y = 164; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+  x = 8; y = 168; w = 110; h = 64;
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
   tft.println(myData.hum, 1);
@@ -219,34 +224,51 @@ void draw() {
   tft.setCursor(x+8, y+58);
   tft.println("hum");
   /*****************************************************************************
-   * Free
+   * GPS Altitude 
    ****************************************************************************/
-  x = 8; y = 230; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+  x = 8; y = 236; w = 110; h = 64;
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
+  if (GPS_DATA_RECVD_OK) {
+    tft.setFreeFont(&Orbitron_Light_32);
+    tft.setCursor(x+8, y+34);
+    tft.println(myData.gps_altitude_meters, 1);
+  }
   tft.setFreeFont(&Orbitron_Light_24);
   tft.setCursor(x+8, y+58);
-  tft.println("");  
+  tft.println("alt");
   /*****************************************************************************
-   * Free 
+   * Fuel
    ****************************************************************************/
   x = 122; y = 32; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
+  tft.setFreeFont(&Orbitron_Light_32);
+  tft.setCursor(x+8, y+34);
+  tft.println(myData.fuel_perc);
+  tft.setFreeFont(&Orbitron_Light_24);
+  tft.setCursor(x+8, y+58);
+  tft.println("fuel"); 
+  /*****************************************************************************
+   * Free 
+   ****************************************************************************/  
+  x = 122; y = 100; w = 110; h = 64;
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
   tft.setFreeFont(&Orbitron_Light_24);
   tft.setCursor(x+8, y+58);
   tft.println("");
   /*****************************************************************************
-   * GPS locations
+   * Free 
    ****************************************************************************/  
-  x = 122; y = 98; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+  x = 122; y = 168; w = 110; h = 64;
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
   tft.setFreeFont(&Orbitron_Light_24);
   tft.setCursor(x+8, y+58);
-  tft.println("location");
+  tft.println("");
   /*****************************************************************************
-   * GPS speed 
-   ****************************************************************************/  
-  x = 122; y = 164; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
+   * GPS Speed
+   ****************************************************************************/
+  x = 122; y = 236; w = 110; h = 64;
+  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
+  tft.setFreeFont(&Orbitron_Light_32);
   if (GPS_DATA_RECVD_OK) {
     tft.setFreeFont(&Orbitron_Light_32);
     tft.setCursor(x+8, y+34);
@@ -255,24 +277,6 @@ void draw() {
   tft.setFreeFont(&Orbitron_Light_24);
   tft.setCursor(x+8, y+58);
   tft.println("speed");
-  /*****************************************************************************
-   * Fuel
-   ****************************************************************************/
-  x = 122; y = 230; w = 110; h = 64;
-  tft.fillRoundRect(x, y, w, h, 10, TFT_WHITE);
-  tft.setFreeFont(&Orbitron_Light_32);
-  tft.setCursor(x+8, y+34);
-  tft.println(myData.fuel_perc);
-  tft.setFreeFont(&Orbitron_Light_24);
-  tft.setCursor(x+8, y+58);
-  tft.println("fuel"); 
-
-  // version
-  tft.setTextColor(TFT_WHITE);
-  tft.setFreeFont(FSSO9);
-  String rev = " ";
-  rev += String('v') + version_major() + "." + version_minor() + "." + version_patch();
-  tft.drawString(rev, 162, 301, GFXFF);
 }
 
 // -------------------------------------------------------------------------
