@@ -326,23 +326,24 @@ void displayGPSInfo() {
 
 void sendGPSInfo() {
    if (gps.location.isValid()) {
-     long scale=10000000UL; //10 milion. Why ? This technique is called - integer scaling.
+     long scale=10000000UL; //10 milion. Why ? see below:
      /*
-     The GPS Module is givin you raw LAT and LNG data. LAT and LNG are given in degrees and 
-     billionths, as two separate values.
-     The raw data won't be given to you in a decimal format such as 50.123456, but reather 
-     as 50 degrees and 1234567895 billionths.
-     You want to store LAT (or LGN) in one variable (and not two, the virst variable for degrees, 
-     the other one for billionts).
-     If you save it as a float number, it will be preceise only up to 5 decimal places.
-     So here comes the important trick - you will store all the degrees and billionth values in 
-     a long data type variable.
-     Degrees will be multiplied with the variable scale(10 milion) 
-     - e.g. 30 degrees N * 10000000UL = 300000000  (9 digits)
-     Billionths will be devided by 100UL. Why ? To get a 7 digits number, that will be added to 
-     the 9 digits degree value
-     (You want to leave alone the first 2 digits of your degrees value. Billionths should begin 
-     from the third digit)
+     The GPS Module is givin you raw LAT and LNG data. LAT and LNG are given in
+     degrees and billionths, as two separate values.
+     The raw data won't be given to you in a decimal format such as 50.123456,
+     but rather as 50 degrees and 1234567895 billionths.
+     You want to store LAT (or LGN) in one variable (and not two, the virst
+     variable for degrees, the other one for billionts).
+     If you save it as a float number, it will be preceise only up to 5 decimal
+     places.
+     So here comes the important trick - you will store all the degrees and
+     billionth values in a long data type variable.
+     Degrees will be multiplied with the variable scale(10 milion)
+       - e.g. 30 degrees N * 10000000UL = 300000000  (9 digits)
+     Billionths will be devided by 100UL. Why ? To get a 7 digits number, that
+     will be added to the 9 digits degree value
+     (You want to leave alone the first 2 digits of your degrees value.
+     Billionths should begin from the third digit).
      This technique is called integer scaleing.
      */
      long lat; long lon;
