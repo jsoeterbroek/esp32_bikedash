@@ -11,6 +11,18 @@
 #include <WiFi.h>
 #include <HardwareSerial.h>
 #include <TinyGPSPlus.h>
+#include <ESPmDNS.h>
+#include <NetworkUdp.h>
+#include <ArduinoOTA.h>
+
+const char* ssid = "XXXXXXXX";
+const char* password = "XXXXXXXXX";
+
+//variabls for blinking an LED with Millis
+const int led = 2; // ESP32 Pin to which onboard LED is connected
+unsigned long previousMillis = 0;  // will store last time LED was updated
+const long interval = 1000;  // interval at which to blink (milliseconds)
+int ledState = LOW;  // ledState used to set the LED
 
 // MAC Address of your dashboard receiver
 // 1c:69:20:cd:4c:e8
@@ -72,8 +84,10 @@ bool GPS_DEMO_DATA_SEND_ONCE = false;
 bool GSM_OK = false;
 bool TEMP_OK = false;
 bool BATT_OK = false;
+bool WIFI_OK = false;
 
 bool gps_status = false;
+String MY_IP = "192.168.178.38";
 
 // Create a struct_message to hold outgoing readings
 struct_message outgoingReadings;
@@ -109,6 +123,9 @@ TinyGPSPlus gps;
 HardwareSerial gpsSerial(1); // use UART1
 
 void setup() {
+
+  pinMode(led, OUTPUT);
+
   // Init Serial Monitor
   Serial.begin(115200);
   gpsSerial.begin(GPS_BAUD, SERIAL_8N1, RXD2, TXD2);
@@ -119,7 +136,55 @@ void setup() {
   u8g2_prepare();
 
   // Set device as a Wi-Fi Station
+  // for ota
   WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
+  }
+
+  // Port defaults to 3232
+  ArduinoOTA.setPort(3232);
+
+  // Hostname defaults to esp3232-[MAC]
+  ArduinoOTA.setHostname("collector");
+
+  // No authentication by default
+  ArduinoOTA.setPassword("admin");
+
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+      Serial.println("Start updating " + type);
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+
+  ArduinoOTA.begin();
+
+  // check wifi status
+  if (WiFi.localIP()) {
+    Serial.println("Wifi OK");
+    WIFI_OK = true;
+  }
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
@@ -175,16 +240,16 @@ void display_status_lcd() {
   u8g2_prepare();
   u8g2.setFontMode(1);  /* activate transparent font mode */
 
-  // display ESP setup status
+  // display WIFI status
   u8g2.setCursor(0, 0);
   u8g2.setDrawColor(2);
-  if (ESP_SETUP_OK) {
-    u8g2.print("ESP_SETUP_OK");
+  if (WIFI_OK) {
+    u8g2.print("WIFI_OK");
   } else {
     u8g2.setDrawColor(1);
     u8g2.drawBox(0, 0, 45, 10);
     u8g2.setDrawColor(2);
-    u8g2.print(" ESP_SETUP_NOK");
+    u8g2.print(" WIFI_NOK");
   }
   // display ESP send status
   u8g2.setCursor(0, 10);
@@ -246,10 +311,8 @@ void display_status_lcd() {
  
 void loop() {
  
-//  while (gpsSerial.available() > 0) {
-//    char gpsData = gpsSerial.read();
-//    Serial.print(gpsData);
-//  }
+  ArduinoOTA.handle();
+
   while (gpsSerial.available() > 0) {
     if (gps.encode(gpsSerial.read())) {
       displayGPSInfo();
@@ -373,7 +436,7 @@ void sendGPSInfo() {
    if (gps.time.isValid()) {
      outgoingReadings.gps_time_hour = gps.time.hour();
      outgoingReadings.gps_time_minute = gps.time.minute();
-     outgoingReadings.gps_time_second = gps.time.second();
+     //outgoingReadings.gps_time_second = gps.time.second();
    } else {
      Serial.println(F("TIME INVALID"));
    }
@@ -383,9 +446,10 @@ void sendGPSInfo() {
      Serial.println(F("SPEED INVALID"));
      outgoingReadings.gps_speed_kmph = 0;
    }
+   outgoingReadings.gps_altitude_meters = gps.altitude.meters();
+   outgoingReadings.gps_satellites = gps.satellites.value();
 
+   // TODO FIXME:
    outgoingReadings.gps_status = gps_status;
-   // TODO: dummy data
-   outgoingReadings.gps_altitude_meters = 12;
    outgoingReadings.gps_age = 5;
 }

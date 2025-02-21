@@ -44,11 +44,14 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println("  time: ");
   Serial.print("    hour: "); Serial.println(myData.gps_time_hour);
   Serial.print("    minute: "); Serial.println(myData.gps_time_minute);
-  Serial.print("    second: "); Serial.println(myData.gps_time_second);
+  Serial.println("  satellites: ");
+  Serial.print("    found: "); Serial.println(myData.gps_satellites);
   Serial.println("  location: ");
-  Serial.print("    lat: "); Serial.println(myData.gps_lat);
-  Serial.print("    long: "); Serial.println(myData.gps_lng);
-  // Serial.println("-------");
+  Serial.print("    lat: "); Serial.println(myData.gps_lat);  
+  Serial.print("    lon: "); Serial.println(myData.gps_lng);  
+  Serial.println("  altitude: ");
+  Serial.print("    meters: "); Serial.println(myData.gps_altitude_meters);  
+  Serial.println("-------");
   ESP_DATA_RECVD_OK = true;
 }
 
@@ -168,9 +171,18 @@ void draw() {
   }
 
   /*****************************************************************************
+   * GPS satellites
+   ****************************************************************************/
+  tft.setFreeFont(FSS9);
+  if (GPS_DATA_RECVD_OK) {
+    tft.setCursor(130, 18);
+    tft.print(myData.gps_satellites);
+    //tft.println(" satt");
+  }
+  /*****************************************************************************
    * GPS Time 
    ****************************************************************************/
-  lx = 190; ly = 18;
+  lx = 186; ly = 18;
   if (GPS_DATA_RECVD_OK) {
     // make string "HH:MM"
     // TODO: 
