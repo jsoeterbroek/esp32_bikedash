@@ -1,0 +1,4 @@
+pin 1 vo+      power out     
+pin 2 gnd	batt zwart 
+pin 3 in +      batt rood  
+pin 4 en                   

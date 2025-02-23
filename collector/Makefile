@@ -77,7 +77,7 @@ GIT_VERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 # --- Upload Speed Label: the "arduino-cli upload" command uses "baud" or UploadSpeed to specify
 #     the board upload speed, the following variable will heve the correct value
 #SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud|UploadSpeed' |tr '"' ' ' | awk '{print $$3}')
-SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud' | head -1 | awk '{print $$6}')
+#SPEEDLABEL = $(shell arduino-cli board details -f -b $(FQBN) --format json | egrep -i 'baud' | head -1 | awk '{print $$6}')
 
 ifdef GIT_VERSION
   CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(GIT_VERSION)\"
@@ -170,23 +170,18 @@ upload: compile
 ota: compile
 	@PLAT_PATH=`arduino-cli compile -b $(FQBN) --show-properties | grep '^runtime.platform.path' | awk -F= '{print $$2}'` ; \
 	   PY_PATH=`which python3 | xargs dirname` ; \
-	if [[ "$(OSFAMILY)" = "Linux" && "$(IOT_IP)" = "" ]] ; \
-	then IOT_IP=`avahi-browse _arduino._tcp --resolve --parsable --terminate|grep -i ';$(IOT_NAME);'|grep ';$(OTA_PORT);'| awk -F\; '{print $$8}'|head -1`; \
-	elif [[ "$(OSFAMILY)" = "Darwin" && "$(IOT_IP)" = "" ]] ; \
-	then IOT_IP=`(timeout 3 dns-sd -G v4 $(IOT_NAME).local | grep $(IOT_NAME).local)  | awk '{print $$6}'` ; \
-	fi ; \
 	BINFILE=$(wildcard $(BIN)); \
 	echo "PLAT_PATH   is [$$PLAT_PATH]" ; \
 	echo "PY_PATH:    is [$$PY_PATH]"  ; \
-	echo "IOT_IP:     is [$$IOT_IP]"   ; \
+	echo "IOT_IP:     is [$(IOT_IP)]"   ; \
 	echo "BINFILE:    is [$$BINFILE]"  ; \
-	if [ "$$IOT_IP" = "" ] ; \
+	if [ "$(IOT_IP)" = "" ] ; \
 	then if [ "$(OSFAMILY)" = "Linux" -o "$(OSFAMILY)" = "Darwin" ] ; \
 	then echo "Unable to find device IP. Check that the IOT_NAME environment variable is correctly set. Use 'make find' to search devices"; \
 	else echo "IOT_IP variable not set, you have to set this variable to the IP address of your device"; \
 	fi; \
 	else echo "---> Uploading Over The Air"; \
-	$$PY_PATH/python3 $$PLAT_PATH/tools/espota.py -i $$IOT_IP -p $(OTA_PORT) --auth=$(OTA_PASS) -f $$BINFILE ;\
+	$$PY_PATH/python3 $$PLAT_PATH/tools/espota.py -i $(IOT_IP) -p $(OTA_PORT) --auth=$(OTA_PASS) -f $$BINFILE ;\
 	fi
 
 clean:
