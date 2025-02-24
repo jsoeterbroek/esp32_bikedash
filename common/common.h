@@ -24,7 +24,8 @@ static inline int version_patch(void) {
 //Must match the receiver structure
 typedef struct struct_message {
   int id;
-  float batt_v;
+  float batt_volt;
+  float batt_perc;
   float temp;
   float hum;
   unsigned int readingId;

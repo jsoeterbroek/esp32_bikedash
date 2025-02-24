@@ -203,15 +203,24 @@ void draw() {
   /*****************************************************************************
    * Batt 
    ****************************************************************************/
-  x = 8; y = 32; w = 110; h = 64;
+  x = 8; y = 32; w = 222; h = 64;
   tft.setTextColor(RECT_FG_COLOR);
   tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
   tft.setFreeFont(&Orbitron_Light_32);
   tft.setCursor(x+8, y+34);
-  tft.println(myData.batt_v, 1);
+  tft.println(myData.batt_volt, 1);
   tft.setFreeFont(&Orbitron_Light_24);
-  tft.setCursor(x+8, y+58);
-  tft.println("batt");
+  tft.setCursor(x+84, y+32);
+  tft.println("v");  
+  tft.setFreeFont(&Orbitron_Light_24);
+  tft.setCursor(x+50, y+56);
+  tft.println("battery");
+  tft.setFreeFont(&Orbitron_Light_32);
+  tft.setCursor(x+118, y+34);
+  tft.println(myData.batt_perc, 0);
+  tft.setFreeFont(&Orbitron_Light_24);
+  tft.setCursor(x+176, y+32);
+  tft.println("%");
   /*****************************************************************************
    * Temp 
    ****************************************************************************/
@@ -249,24 +258,27 @@ void draw() {
   tft.setCursor(x+8, y+58);
   tft.println("alt");
   /*****************************************************************************
-   * Fuel
+   * Free
    ****************************************************************************/
-  x = 122; y = 32; w = 110; h = 64;
-  tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
-  tft.setFreeFont(&Orbitron_Light_32);
-  tft.setCursor(x+8, y+34);
-  tft.println(myData.fuel_perc);
-  tft.setFreeFont(&Orbitron_Light_24);
-  tft.setCursor(x+8, y+58);
-  tft.println("fuel"); 
+  //x = 122; y = 32; w = 110; h = 64;
+  //tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
+  //tft.setFreeFont(&Orbitron_Light_32);
+  //tft.setCursor(x+8, y+34);
+  //tft.println(myData.fuel_perc);
+  //tft.setFreeFont(&Orbitron_Light_24);
+  //tft.setCursor(x+8, y+58);
+  //tft.println("fuel"); 
   /*****************************************************************************
-   * Free 
+   * Fuel
    ****************************************************************************/  
   x = 122; y = 100; w = 110; h = 64;
   tft.fillSmoothRoundRect(x, y, w, h, 10, RECT_BG_COLOR);
+  tft.setFreeFont(&Orbitron_Light_32);
+  tft.setCursor(x+8, y+34);
+  //tft.println(myData.fuel_perc);
   tft.setFreeFont(&Orbitron_Light_24);
   tft.setCursor(x+8, y+58);
-  tft.println("");
+  tft.println("fuel"); 
   /*****************************************************************************
    * Free 
    ****************************************************************************/  

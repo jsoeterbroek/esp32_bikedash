@@ -9,21 +9,23 @@
 #include <HardwareSerial.h>
 #include <TinyGPSPlus.h>
 #include "BLEDevice.h"
-//#include "BLEScan.h"
-#include <AES.h>
+#include "esp_log.h"
+#include "mbedtls/aes.h"
+#include <stdio.h>
+#include <string.h>
 
 // BLE for Battery Monitor
 // B0:D2:78:29:5F:8B
+//
 // The remote service we wish to connect to.
-//static BLEUUID serviceUUID("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
-static BLEUUID serviceUUID("bc82363c-9740-a2f2-6bb7-f5fb6306306e");
-// The characteristic of the remote service we are interested in.
-// static BLEUUID charUUID("beb5483e-36e1-4688-b7f5-ea07361b26a8");
-static BLEUUID charUUID("0000fff0-0000-1000-8000-00805f9b34fb");
+static BLEUUID serviceUUID("0000fff0-0000-1000-8000-00805f9b34fb");
 
-// python
-//BM2_ENCRYPTION_KEY = b"\x6c\x65\x61\x67\x65\x6e\x64\xff\xfe\x31\x38\x38\x32\x34\x36\x36"
-//AesBlockSize = 16
+// The characteristic of the remote service we are interested in.
+// battery voltage
+static BLEUUID charUUID("0000fff4-0000-1000-8000-00805f9b34fb");
+
+mbedtls_aes_context aes;
+unsigned char key[16] = { 108, 101, 97, 103, 101, 110, 100, 255, 254, 49, 56, 56, 50, 52, 54, 54, };
 
 static boolean doConnect = false;
 static boolean connected = false;
@@ -83,12 +85,13 @@ bool GSM_OK = false;
 bool TEMP_OK = false;
 bool BATT_OK = false;
 bool WIFI_OK = false;
+bool BLE_CONNECT_OK = false;
 
 bool gps_status = false;
 
+// ESP Now
 // Create a struct_message to hold outgoing readings
 struct_message outgoingReadings;
-
 esp_now_peer_info_t peerInfo;
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
@@ -103,7 +106,6 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   if (status ==0){
     ESP_SEND_OK = true;
   }
-
 }
 
 // GPS
@@ -113,13 +115,26 @@ HardwareSerial gpsSerial(1); // use UART1
 
 // BLE
 static void notifyCallback(BLERemoteCharacteristic *pBLERemoteCharacteristic, uint8_t *pData, size_t length, bool isNotify) {
-  Serial.print(F("Notify callback for characteristic "));
-  Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
-  Serial.print(F(" of data length "));
-  Serial.println(length);
-  Serial.print(F("data: "));
-  Serial.write(pData, length);
-  Serial.println();
+  //Serial.print(F("Notify callback for characteristic "));
+  //Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
+  //Serial.print(F(" of data length "));
+  //Serial.println(length);
+  //Serial.print(F("data: "));
+  //Serial.write(pData, length);
+  //Serial.println();
+
+  //Create buffer for decrypt output
+  size_t bufferSize = 16;
+  unsigned char decryptedMessage[bufferSize];
+  memset(decryptedMessage, 0, bufferSize);
+  unsigned char output[16];
+  unsigned char iv[16] = {};
+  mbedtls_aes_init(&aes);
+  mbedtls_aes_setkey_dec(&aes, key, 128);
+  mbedtls_aes_crypt_cbc(&aes, MBEDTLS_AES_DECRYPT, 16, iv, pData, output);
+  mbedtls_aes_free(&aes);
+  outgoingReadings.batt_volt = ((output[2] | (output[1] << 8)) >> 4) / 100.0f;
+  outgoingReadings.batt_perc = output[3];
 }
 
 class MyClientCallback : public BLEClientCallbacks {
@@ -142,7 +157,7 @@ bool connectToServer() {
 
   // Connect to the remove BLE Server.
   pClient->connect(myDevice);  // if you pass BLEAdvertisedDevice instead of address, it will be recognized type of peer device address (public or private)
-  Serial.println(F(" - Connected to server"));
+  Serial.println(F(" - Connected to device"));
   pClient->setMTU(517);  //set client to request maximum MTU from server (default is 23 otherwise)
 
   // Obtain a reference to the service we are after in the remote BLE server.
@@ -170,9 +185,6 @@ bool connectToServer() {
     String value = pRemoteCharacteristic->readValue();
     Serial.print(F("The characteristic value was: "));
     Serial.println(value.c_str());
-    // TODO needs decrypting
-    // see:
-    // https://github.com/KrystianD/bm2-battery-monitor
   }
 
   if (pRemoteCharacteristic->canNotify()) {
@@ -191,23 +203,31 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
    * Called for each advertising BLE server.
    */
   void onResult(BLEAdvertisedDevice advertisedDevice) {
-    Serial.print(F("BLE Advertised Device found: "));
-    Serial.println(advertisedDevice.toString().c_str());
+    //Serial.print(F("BLE Advertised Device found: "));
+    //Serial.println(advertisedDevice.toString().c_str());
 
-    // if (strcmp(advertisedDevice.getAddress().toString().c_str(), "B0:D2:78:29:5F:8B") == 0) {
+    // FIXME
+    if (strcmp(advertisedDevice.getAddress().toString().c_str(), "b0:d2:78:29:5f:8b") == 0) {
     // We have found a device, let us now see if it contains the service we are looking for.
-    if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(serviceUUID)) {
+    //if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(serviceUUID)) {
+      Serial.println(F("BLE Advertised Device found: "));
+      Serial.println(advertisedDevice.toString().c_str());
 
+      Serial.println(F("Stop scan and connect: "));
       BLEDevice::getScan()->stop();
       myDevice = new BLEAdvertisedDevice(advertisedDevice);
       doConnect = true;
-      doScan = true;
+      //doScan = true;
+      doScan = false;
+      BLE_CONNECT_OK = true;
 
     }  // Found our server
   }  // onResult
 };  // MyAdvertisedDeviceCallbacks
 
 void setup() {
+
+  delay(5000);
 
   // Init Serial Monitor
   Serial.begin(115200);
@@ -272,9 +292,9 @@ void loop() {
   // connected we set the connected flag to be true.
   if (doConnect == true) {
     if (connectToServer()) {
-      Serial.println(F("We are now connected to the BLE Server."));
+      Serial.println(F("We are now connected to the BLE device."));
     } else {
-      Serial.println(F("We have failed to connect to the server; there is nothing more we will do."));
+      Serial.println(F("We have failed to connect to the device; there is nothing more we will do."));
     }
     doConnect = false;
   }
@@ -306,7 +326,7 @@ void loop() {
     GPS_DATA_SEND_OK = false;
   }
 
-  Serial.println(F("*----------------------------------------*"));
+  //Serial.println(F("*----------------------------------------*"));
   // Get temperature event and print its value.
   float h = dht.readHumidity();
   // Read temperature as Celsius (the default)
@@ -335,7 +355,14 @@ void loop() {
      Serial.println(F("ESP_NOW Error sending the data"));
   }
 
-  delay(2000);
+  // FIXME
+  if (BLE_CONNECT_OK) {
+    Serial.println(F("BLE connect OK"));
+  } else {
+     Serial.println(F("BLE not connected"));
+  }
+
+  delay(5000);
 }
 
 void displayBattInfo() {
@@ -343,7 +370,7 @@ void displayBattInfo() {
 }
 
 void sendBattInfo() {
-  outgoingReadings.batt_v = 11.1;
+  //outgoingReadings.batt_v = batt_v;
 }
 
 void displayGPSInfo() {
