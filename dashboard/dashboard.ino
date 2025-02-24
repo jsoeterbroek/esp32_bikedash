@@ -5,12 +5,18 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <TFT_eSPI.h>
-#include <Free_Fonts.h>
-#include <Orbitron_Medium_20.h>
-#include <Latin_Hiragana_24.h>
-#include <DSEG7.h>
+#include <fonts/Free_Fonts.h>
+#include <fonts/Orbitron_Medium_20.h>
+#include <fonts/Latin_Hiragana_24.h>
+#include <fonts/DSEG7.h>
+#include <Pangodream_18650_CL.h>
+#include <SPIFFS.h>
+#include <TJpg_Decoder.h>
 
-#define SCREEN_WIDTH 240>
+// TODO: 18650 battery charge indicator
+// https://github.com/0015/ThatProject/tree/master/ESP32_TTGO/TTGO_Battery_Indicator
+
+#define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
 #define TFT_GREY      0x5AEB   // grey
 #define FG_COLOR      0x9986   // red
@@ -186,13 +192,13 @@ void draw() {
   lx = 186; ly = 18;
   if (GPS_DATA_RECVD_OK) {
     // make string "HH:MM"
-    // TODO: 
+    // TODO: 24-hours format, summertime
     //   - 24-hours format
     //   - zomertijd/wintertijd +1 (timezone)
     //     for now hour + 1
     char buffer[50];
     sprintf(buffer, "%.2i:%.2i",
-      myData.gps_time_hour+1,  // FIXME
+      myData.gps_time_hour+1,
       myData.gps_time_minute);
     String gps_time(buffer);
     tft.setCursor(lx, ly);

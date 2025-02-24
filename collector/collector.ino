@@ -206,7 +206,7 @@ class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
     //Serial.print(F("BLE Advertised Device found: "));
     //Serial.println(advertisedDevice.toString().c_str());
 
-    // FIXME
+    // FIXME: BLE address into var
     if (strcmp(advertisedDevice.getAddress().toString().c_str(), "b0:d2:78:29:5f:8b") == 0) {
     // We have found a device, let us now see if it contains the service we are looking for.
     //if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(serviceUUID)) {
@@ -355,13 +355,6 @@ void loop() {
      Serial.println(F("ESP_NOW Error sending the data"));
   }
 
-  // FIXME
-  if (BLE_CONNECT_OK) {
-    Serial.println(F("BLE connect OK"));
-  } else {
-     Serial.println(F("BLE not connected"));
-  }
-
   delay(5000);
 }
 
@@ -454,8 +447,4 @@ void sendGPSInfo() {
    }
    outgoingReadings.gps_altitude_meters = gps.altitude.meters();
    outgoingReadings.gps_satellites = gps.satellites.value();
-
-   // TODO FIXME:
-   outgoingReadings.gps_status = gps_status;
-   outgoingReadings.gps_age = 5;
 }
