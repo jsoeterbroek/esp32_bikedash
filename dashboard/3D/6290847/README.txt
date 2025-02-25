@@ -1,0 +1,1 @@
+ESP32-2432S032 by machanzar on Thingiverse: https://www.thingiverse.com/thing:6290847
