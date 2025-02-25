@@ -13,6 +13,9 @@ see PARTS.md
 ### Anti-theft
 * GSM integration
 
+### ESP Home
+* Integration woth ESP Home (MQTT)
+
 see also TODO.txt
 
 ## Pictures
