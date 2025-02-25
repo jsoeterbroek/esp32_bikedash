@@ -14,7 +14,10 @@
 ** sensor module - Asair AM2301
  
 
-## Case
+### Board
+
+### Case
+
 ### Power
 *  buck converter - HW-613
 
