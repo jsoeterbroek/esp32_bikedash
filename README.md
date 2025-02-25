@@ -31,4 +31,5 @@ see [PARTS.md](PARTS.md)
 see also [TODO.txt](TODO.txt)
 
 ## Pictures
-TBA
+
+### Dashboard
