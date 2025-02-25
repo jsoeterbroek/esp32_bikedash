@@ -32,7 +32,7 @@ see also [TODO.txt](TODO.txt)
 
 ## Pictures
 
-### Dashboard
+### Dashboard Version 1.2.1
 
 * [Dashboard setup screen](dashboard/pics/IMG_0747.jpeg)
 * [Dashboard main screen](dashboard/pics/IMG_0748.jpeg)
