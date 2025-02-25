@@ -13,7 +13,7 @@ TBD; 18650 batteries or USB or Motorcycle battery
 TBD; 18650 batteries or USB
 
 ## Parts
-see PARTS.md
+see [PARTS.md](PARTS.md)
 
 ## TODO
 
@@ -28,7 +28,7 @@ see PARTS.md
 ### ESP Home
 * Integration woth ESP Home (MQTT)
 
-see also TODO.txt
+see also [TODO.txt](TODO.txt)
 
 ## Pictures
 TBA
