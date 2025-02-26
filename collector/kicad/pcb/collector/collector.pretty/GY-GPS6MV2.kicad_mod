@@ -1,0 +1,174 @@
+(footprint "GY-GPS6MV2"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "c2bf627e-e92b-456c-83fc-21531d374aba")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "GY-GPS6MV2"
+		(at 0 1 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "17068f84-19a9-4751-aaae-99cf70f533c5")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "05bca79d-c368-4fab-8291-9ed45f74ab67")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ad4dee42-52fb-47df-a020-34fd3a4939ed")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1c97ea42-5538-4a82-88a4-bb2ce968df58")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_rect
+		(start -5.5 -4.5)
+		(end 18.5 31.5)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "23d79025-028f-4f3a-b447-850f17588dfe")
+	)
+	(fp_circle
+		(center -3.5 -2.5)
+		(end -3 -1)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "5c83a232-b3c6-4c18-a09c-bf5d8cbd3127")
+	)
+	(fp_circle
+		(center -3.5 29.5)
+		(end -3 31)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "b6069eb0-5900-4b1d-bb67-c70bf2af4622")
+	)
+	(fp_circle
+		(center 16 -2.5)
+		(end 16.5 -1)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "32d57015-ddf1-4ae3-ad69-ed2d75dc9313")
+	)
+	(fp_circle
+		(center 16.5 29.5)
+		(end 17 31)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "37b649f5-81c2-454a-a2d7-99bb5af714b5")
+	)
+	(fp_text user "GPS"
+		(at 0 6 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "ff8ea803-ae1e-4df9-b8a5-5ee5e19f03d3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "36cb4595-92b3-4c1f-848a-e78676c68d3f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd circle
+		(at 0.5 -2.5)
+		(size 2.286 2.286)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "48933a19-b23d-4df1-8e56-a263224c96cc")
+	)
+	(pad "2" smd circle
+		(at 4 -2.5)
+		(size 2.286 2.286)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "545ef49b-0553-44d2-92c7-79afc34cce9c")
+	)
+	(pad "3" smd circle
+		(at 7.5 -2.5)
+		(size 2.286 2.286)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "1f01a711-d261-499d-9355-18419d410541")
+	)
+	(pad "4" smd circle
+		(at 11 -2.5)
+		(size 2.286 2.286)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(uuid "cfba9b3a-9d7c-4aa2-bcc5-a5215bf62a95")
+	)
+)

@@ -697,10 +697,331 @@
 				)
 			)
 		)
+		(symbol "collector:GY-GPS6MV2"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "GY-GPS6MV2_1_1"
+				(rectangle
+					(start -11.43 0)
+					(end 10.16 -19.05)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(text "GPS"
+					(at 0.508 -9.144 0)
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(pin power_in line
+					(at -13.97 -15.24 0)
+					(length 2.54)
+					(name "VCC"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at -13.97 -11.43 0)
+					(length 2.54)
+					(name "RX"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at -13.97 -7.62 0)
+					(length 2.54)
+					(name "TX"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -13.97 -3.81 0)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 95.25 52.07) (xy 95.25 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11ff403b-7acb-49f8-b81f-493646bf59b2")
+	)
+	(wire
+		(pts
+			(xy 172.72 52.07) (xy 95.25 52.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "12fcd04d-3529-448f-b673-56ed4a427946")
+	)
+	(wire
+		(pts
+			(xy 97.79 54.61) (xy 175.26 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "141b932e-de35-4323-9a1c-4b39f067e535")
+	)
+	(wire
+		(pts
+			(xy 105.41 97.79) (xy 97.79 97.79)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1ed63a6a-e948-4280-94c7-9b3fe43ec87b")
+	)
+	(wire
+		(pts
+			(xy 173.99 53.34) (xy 96.52 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2332a44a-8b83-4dce-be62-c93bd284da62")
+	)
+	(wire
+		(pts
+			(xy 171.45 69.85) (xy 156.21 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e05ca2f-ffa9-4d3f-8096-ae801d92a50a")
+	)
+	(wire
+		(pts
+			(xy 96.52 53.34) (xy 96.52 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "59a27eae-d025-489a-b9a0-305b3bb6f4bb")
+	)
+	(wire
+		(pts
+			(xy 171.45 81.28) (xy 171.45 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "60b1ea8d-5e83-4809-ab00-fb302b613e64")
+	)
+	(wire
+		(pts
+			(xy 175.26 88.9) (xy 187.96 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "638960c3-90b0-4e89-9a00-94954e34a508")
+	)
+	(wire
+		(pts
+			(xy 173.99 92.71) (xy 173.99 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69dcefa4-d8fc-426d-8482-dff0c70ccd5b")
+	)
+	(wire
+		(pts
+			(xy 187.96 81.28) (xy 171.45 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a15eb21f-e3a0-46a1-aa67-c33d714d35c4")
+	)
+	(wire
+		(pts
+			(xy 175.26 54.61) (xy 175.26 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a1cca9ba-9773-4978-9024-bacace7f9e86")
+	)
+	(wire
+		(pts
+			(xy 96.52 69.85) (xy 105.41 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a27efadf-06ba-411c-a72d-a32ae17bfaea")
+	)
+	(wire
+		(pts
+			(xy 172.72 85.09) (xy 172.72 52.07)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aac11dc9-5033-4695-b333-d18f8d4d9f28")
+	)
+	(wire
+		(pts
+			(xy 97.79 97.79) (xy 97.79 54.61)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bea732e9-b3f6-432e-beca-71978e6aac15")
+	)
+	(wire
+		(pts
+			(xy 187.96 92.71) (xy 173.99 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e0a945b3-39bd-4196-b9f6-f87c99f5c543")
+	)
+	(wire
+		(pts
+			(xy 95.25 77.47) (xy 105.41 77.47)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fb3ec1d7-bdcf-429e-8448-13e6b76b584e")
+	)
+	(wire
+		(pts
+			(xy 172.72 85.09) (xy 187.96 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fe23ccc6-21ae-4e59-80be-74c0957732f4")
 	)
 	(symbol
 		(lib_id "PCM_Espressif:ESP32-C6-DevKitC-1")
-		(at 143.51 93.98 0)
+		(at 130.81 87.63 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -709,7 +1030,7 @@
 		(fields_autoplaced yes)
 		(uuid "5191ed5d-b3ea-4c34-953a-fcecb69a62a9")
 		(property "Reference" "U1"
-			(at 143.51 68.58 0)
+			(at 130.81 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -717,7 +1038,7 @@
 			)
 		)
 		(property "Value" "ESP32-C6-DevKitC-1"
-			(at 143.51 71.12 0)
+			(at 130.81 64.77 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -725,7 +1046,7 @@
 			)
 		)
 		(property "Footprint" "PCM_Espressif:ESP32-C6-DevKitC-1"
-			(at 143.51 119.38 0)
+			(at 130.81 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -734,7 +1055,7 @@
 			)
 		)
 		(property "Datasheet" "https://docs.espressif.com/projects/espressif-esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html"
-			(at 152.4 121.92 0)
+			(at 139.7 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -743,7 +1064,7 @@
 			)
 		)
 		(property "Description" "ESP32-C6-DevKitC-1"
-			(at 143.51 93.98 0)
+			(at 130.81 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -851,6 +1172,82 @@
 			(project ""
 				(path "/f785c655-46df-4c8c-8516-f53573221e09"
 					(reference "U1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "collector:GY-GPS6MV2")
+		(at 201.93 77.47 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9f2da050-4983-4f63-bbe0-0ee5790e30de")
+		(property "Reference" "U2"
+			(at 213.36 86.3599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "~"
+			(at 213.36 88.265 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "collector:GY-GPS6MV2"
+			(at 201.93 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 201.93 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 201.93 77.47 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a7f951a5-6bfd-4649-ac12-39e6884da46a")
+		)
+		(pin "4"
+			(uuid "126fd44a-48cf-46de-a14e-7c1775fa2488")
+		)
+		(pin "3"
+			(uuid "321ecbfc-6aad-4abd-9510-2a88a0841edc")
+		)
+		(pin "2"
+			(uuid "0011b8d6-fe24-4931-88e7-4ffce0201825")
+		)
+		(instances
+			(project ""
+				(path "/f785c655-46df-4c8c-8516-f53573221e09"
+					(reference "U2")
 					(unit 1)
 				)
 			)

@@ -5,3 +5,6 @@ lvgl/
 secrets.yaml
 venv/
 .esphome/
+*cache
+*.zip
+*.lck

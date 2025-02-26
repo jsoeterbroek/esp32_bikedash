@@ -2,4 +2,5 @@
   (version 7)
   (lib (name "custom_library")(type "KiCad")(uri "${KIPRJMOD}/custom_library.kicad_sym")(options "")(descr ""))
   (lib (name "custom")(type "KiCad")(uri "${KIPRJMOD}/custom.kicad_sym")(options "")(descr ""))
+  (lib (name "collector")(type "KiCad")(uri "${KIPRJMOD}/collector.kicad_sym")(options "")(descr ""))
 )
