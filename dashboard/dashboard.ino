@@ -8,39 +8,37 @@
 #include <fonts/Orbitron_Medium_20.h>
 #include <fonts/Latin_Hiragana_24.h>
 #include <fonts/DSEG7.h>
-#include <Pangodream_18650_CL.h>
-#include <TJpg_Decoder.h>
-
-// TODO: 18650 battery charge indicator
-// https://github.com/0015/ThatProject/tree/master/ESP32_TTGO/TTGO_Battery_Indicator
+#include <Adafruit_MAX1704X.h>
+#include <Wire.h>
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
-#define TFT_GREY      0x5AEB   // grey
-#define FG_COLOR      0x9986   // red
-#define RECT_FG_COLOR 0x5AEB   // grey
-#define RECT_BG_COLOR 0xE73C   // white
-#define BG_COLOR      0x5AEB   // grey
+#define TFT_GREY             0x5AEB   // grey
+#define FG_COLOR             0x9986   // red
+#define RECT_FG_COLOR        0x5AEB   // grey
+#define RECT_BG_COLOR        0xE73C   // white
+#define LEVEL_FG_COLOR       0x5AEB   // grey
+#define LEVEL_BG_COLOR       0xE73C   // white
+#define LEVEL_WARN1_FG_COLOR TFT_ORANGE
+#define LEVEL_WARN1_BG_COLOR TFT_ORANGE
+#define LEVEL_WARN2_FG_COLOR TFT_RED
+#define LEVEL_WARN2_BG_COLOR TFT_RED
+#define BG_COLOR             0x5AEB   // grey
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
 
-// 18650
-#define ICON_WIDTH 70
-#define ICON_HEIGHT 36
-#define STATUS_HEIGHT_BAR ICON_HEIGHT
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
-#define ICON_POS_X (tft.width() - ICON_WIDTH)
-
-//#define MIN_USB_VOL 4.9
-//#define ADC_PIN 26
-//#define CONV_FACTOR 1.8
-//#define READS 20
-
-//Pangodream_18650_CL BL(ADC_PIN, CONV_FACTOR, READS);
-//Pangodream_18650_CL BL;
-//char *batteryImages[] = {"/battery_01.jpg", "/battery_02.jpg", "/battery_03.jpg", "/battery_04.jpg", "/battery_05.jpg"};
-
+// Battery
+#define IP5306_ADDR 0x75
+#define MAX17048_ADDR 0x36
+#define I2C_SDA 21
+#define I2C_SCL 22
+Adafruit_MAX17048 maxlipo;
+int8_t battery_level = 0;
+int8_t old_level = 0;
+//bool i2c_supported = false;
+//bool has_max17048 = false;
+//bool has_ip5306 = false;
 
 // status flags
 bool SETUP_OK = false;
@@ -82,14 +80,25 @@ void setup() {
 
   //Initialize Serial Monitor
   Serial.begin(115200);
+  delay(2000); // 2 seconds FIXME: remove
+  Serial.println("");
+  Serial.println("------------- setup start --------------");
+
+  byte error;
+  Wire.beginTransmission(MAX17048_ADDR);
+  error = Wire.endTransmission();
+  if (error == 0) {
+    if (maxlipo.begin()) {
+      Serial.println("Detected MAX17048");
+    }
+  }
 
   //pinoutInit();
-
+  //Serial.print("Value from pin: ");
+  //Serial.println(analogRead(ADC_PIN));
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(BG_COLOR);
-
-  //xTaskCreate(battery_info, "battery_info", 2048, NULL, 1, NULL);
 
   //Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
@@ -114,12 +123,89 @@ void setup() {
   software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
   tft.drawString(software, 6, 190, GFXFF);
   delay(6000); // 6 seconds
+  Serial.println("------------- setup end --------------");
   tft.fillScreen(BG_COLOR);            // Clear screen
 }
 
-void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String _display_unit, String _display_label) {
-  int32_t _w = 115;
-  int32_t _h = 70;
+void draw_battery_level_box(int32_t _lx, int32_t _ly, bool _filled, int8_t _warn_level) {
+
+  int32_t _lw = 20; int32_t _lh = 10;
+
+  int fg_color = LEVEL_FG_COLOR;
+  int bg_color = LEVEL_BG_COLOR;
+
+  switch (_warn_level) {
+    case 1:
+      bg_color = LEVEL_WARN1_BG_COLOR;
+      break;
+    case 2:
+      bg_color = LEVEL_WARN2_BG_COLOR;
+      break;
+  }
+
+  spr.drawRect(_lx, _ly, _lw, _lh, bg_color);
+
+  if (_filled) {
+    spr.fillRect(_lx+1, _ly+1, _lw-2, _lh-2, bg_color);
+  } else {
+    spr.fillRect(_lx+1, _ly+1, _lw-2, _lh-2, fg_color);
+  }
+}
+
+void draw_battery_display_box_blocks(int32_t _xx, int32_t _yy, int8_t _batt_perc) {
+
+  int8_t _warn = 0;
+  // calculate battery percentage
+  int8_t _c = 0; int8_t _f = 0; //filled blocks
+  uint8_t step = 0;
+
+  if (_batt_perc < 5) { 
+      for (int i = 1; i<=5 ; i++) {
+        _xx = 112; _xx = _xx + step;
+        draw_battery_level_box(_xx, _yy, 0, 2);
+        step = step + 22;
+      }
+  } else if (_batt_perc < 21) { 
+      for (int i = 1; i<=5 ; i++) {
+        _xx = 112; _xx = _xx + step;
+        if (i <= 1) { _f = 1; } else { _f = 0; }
+        draw_battery_level_box(_xx, _yy, _f, 2);
+        step = step + 22;
+      }
+  } else if (_batt_perc < 41) {
+      for (int i = 1; i<=5 ; i++) {
+        _xx = 112; _xx = _xx + step;
+        if (i <= 2) { _f = 1; } else { _f = 0; }
+        draw_battery_level_box(_xx, _yy, _f, 1);
+        step = step + 22;
+      }
+  } else if (_batt_perc < 61) {
+      for (int i = 1; i<=5 ; i++) {
+        _xx = 112; _xx = _xx + step;
+        if (i <= 3) { _f = 1; } else { _f = 0; }
+        draw_battery_level_box(_xx, _yy, _f, 0);
+        step = step + 22;
+      }
+  } else if (_batt_perc < 90) {
+      for (int i = 1; i<=5 ; i++) {
+        _xx = 112; _xx = _xx + step;
+        if (i <= 4) { _f = 1; } else { _f = 0; }
+        draw_battery_level_box(_xx, _yy, _f, 0);
+        step = step + 22;
+      }
+  } else if (_batt_perc >= 90) {
+      for (int i = 1; i<=5 ; i++) {
+        _xx = 112; _xx = _xx + step;
+        if (i <= 5) { _f = 1; } else { _f = 0; }
+        draw_battery_level_box(_xx, _yy, _f, 0);
+        step = step + 22;
+      }
+  }
+}
+
+void draw_battery_display_box() {
+  int32_t _x = 4; int32_t _y = 28;
+  int32_t _w = 232; int32_t _h = 70;
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
@@ -127,11 +213,60 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
   spr.drawRoundRect(0, 0, _w, _h, 10, RECT_BG_COLOR);
   spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_FG_COLOR);
   // label
-  spr.setTextDatum(TC_DATUM);
+  spr.setFreeFont(FSS12);
+  spr.setTextSize(0);
+  //spr.setFreeFont(&Latin_Hiragana_24);
+
+  /////////////////
+  // BIKE battery
+  int8_t bike_batt_perc = (int)myData.batt_perc;
+  // start car battery icon
+  spr.fillRect(10, 14, 24, 16, RECT_BG_COLOR);
+  spr.fillRect(14, 10, 4, 4, RECT_BG_COLOR);
+  spr.fillRect(26, 10, 4, 4, RECT_BG_COLOR);
+  spr.drawLine(14, 22, 18, 22, RECT_FG_COLOR);
+  spr.drawLine(26, 22, 30, 22, RECT_FG_COLOR);
+  spr.drawLine(28, 20, 28, 24, RECT_FG_COLOR);
+  // end car battery icon
+  spr.drawFloat(myData.batt_volt, 1, 64, 20);
+  spr.drawString("v", 96, 20);
+  // draw the blocks
+  // TEST: uncomment to test (with warning colors)
+  // bike_batt_perc = 22;
+  draw_battery_display_box_blocks(112, 18, bike_batt_perc);
+
+  /////////////////
+  // dashboard battery
+  int8_t intern_batt_perc = (int)myData.batt_perc;
+   // start battery icon
+  spr.fillRect(10, 44, 22, 12, RECT_BG_COLOR);
+  spr.fillRect(32, 48, 4, 4, RECT_BG_COLOR);
+  // end battery icon
+  spr.drawFloat(myData.batt_volt, 1, 64, 46);
+  spr.drawString("v", 96, 46);
+  // draw the blocks
+  // TEST: uncomment to test (with warning colors)
+  intern_batt_perc = 22;
+  draw_battery_display_box_blocks(112, 44, intern_batt_perc);
+
+  // push and delete sprite
+  spr.pushSprite(_x, _y, TFT_TRANSPARENT);
+  spr.deleteSprite();
+}
+
+void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String _display_unit, String _display_label) {
+  int32_t _w = 115; int32_t _h = 70;
+  spr.createSprite(_w, _h);
+  spr.fillSprite(TFT_TRANSPARENT);
+  // background 
+  spr.setTextColor(RECT_BG_COLOR);
+  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_BG_COLOR);
+  spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_FG_COLOR);
+  // label
+  spr.setTextDatum(TL_DATUM);
   spr.setFreeFont(FSSO9);
-  spr.drawString("  ", 14, 6); // FIXME: small icon here; placeholder
-  spr.drawString(_display_label, 54, 6);
-  spr.drawString(_display_unit, 102, 6);
+  spr.drawString(_display_label, 3, 6);
+  //spr.drawString(_display_unit, 102, 6);
   // main display number
   spr.setTextDatum(MC_DATUM);
   spr.setFreeFont(&DSEG7_Classic_Bold_32);
@@ -144,10 +279,6 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
 void draw_no_esp() {
 
   // TODO: once design of main screen is settled, build this screen
-  tft.setTextColor(FG_COLOR);
-  tft.setFreeFont(FSS9);
-  tft.setCursor(130, 18);
-  tft.print("No ESP data received from collector..");
 }
 
 void draw() {
@@ -213,101 +344,33 @@ void draw() {
       myData.gps_time_minute);
     String gps_time(buffer);
     tft.setCursor(lx, ly);
-    tft.println(gps_time);  
+    tft.println(gps_time);
   }
 
   tft.setTextColor(FG_COLOR);
   int32_t x = 0; int32_t y = 0; int32_t r = 10;
   int32_t t = 0; int32_t w = 0; int32_t h = 0;
-  /*****************************************************************************
-   * Battery status
-   ****************************************************************************/
-  // TODO: set battery status here
-  lx = 186; ly = 18;
 
   /*****************************************************************************
-   * Batt 
+   * Bike Battery & Li-ion battery
    ****************************************************************************/
-  draw_display_box(4, 28, myData.batt_volt, 1, "V", "Batt");
-  draw_display_box(122, 28, myData.batt_perc, 0, "%", "Batt");
+  draw_battery_display_box();
   /*****************************************************************************
    * Temp & humidity 
    ****************************************************************************/
-  draw_display_box(4, 100, myData.temp, 1, "C", "Temp");
-  draw_display_box(122, 100, myData.hum, 1, "%", "Hum");
+  draw_display_box(4, 100, myData.temp, 1, "C", "Temperature");
+  draw_display_box(122, 100, myData.hum, 1, "%", "Humidity");
   /*****************************************************************************
    * Fuel
    ****************************************************************************/  
+  draw_display_box(4, 172, 0, 0, " ", "Free");
   draw_display_box(122, 172, myData.fuel_perc, 0, "%", "Fuel");
   /*****************************************************************************
    * GPS Altitude & ground speed
    ****************************************************************************/
-  draw_display_box(4, 244, myData.gps_altitude_meters, 1, "m", "Alt");
+  draw_display_box(4, 244, myData.gps_altitude_meters, 1, "m", "Altitude");
   draw_display_box(122, 244, myData.gps_speed_kmph, 0, "Km", "Speed");
 }
-
-// 18650
-//void pinoutInit(){
-//  pinMode(14, OUTPUT);
-//  digitalWrite(14, HIGH);
-//}
-
-
-// void battery_info(void *arg) {
-//   while (1) {
-//     tft.setCursor (0, STATUS_HEIGHT_BAR);
-//     tft.println("");
-//     tft.print("Average value from pin: ");
-//     tft.println(BL.pinRead());
-//     tft.print("Volts: ");
-//     tft.println(BL.getBatteryVolts());
-//     tft.print("Charge level: ");
-//     tft.println(BL.getBatteryChargeLevel());
-//     
-//     if(BL.getBatteryVolts() >= MIN_USB_VOL) {
-//       for(int i=0; i< ARRAY_SIZE(batteryImages); i++) {
-//         drawingBatteryIcon(batteryImages[i]);
-//         drawingText("Chrg");
-//         vTaskDelay(500);
-//       }
-//     } else {
-//         int imgNum = 0;
-//         int batteryLevel = BL.getBatteryChargeLevel();
-//         if(batteryLevel >=80){
-//           imgNum = 3;
-//         } else if(batteryLevel < 80 && batteryLevel >= 50 ){
-//           imgNum = 2;
-//         } else if(batteryLevel < 50 && batteryLevel >= 20 ){
-//           imgNum = 1;
-//         } else if(batteryLevel < 20 ){
-//           imgNum = 0;
-//         }
-
-//         drawingBatteryIcon(batteryImages[imgNum]);    
-//         drawingText(String(batteryLevel) + "%");
-//         vTaskDelay(1000);
-//     }
-//       tft.print("Never Used Stack Size: ");
-//       tft.println(uxTaskGetStackHighWaterMark(NULL));
-//     }
-// }
-
-// void drawingBatteryIcon(String filePath){
-//    TJpgDec.drawFsJpg(ICON_POS_X, 0, filePath);
-// }
-
-// void drawingText(String text){
-//   tft.fillRect(0, 0, ICON_POS_X, ICON_HEIGHT,TFT_BLACK);
-//   tft.setTextDatum(5);
-//   tft.drawString(text, ICON_POS_X-2, STATUS_HEIGHT_BAR/2, 4);
-// }
-
-// bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t* bitmap)
-// {
-//   if ( y >= tft.height() ) return 0;
-//   tft.pushImage(x, y, w, h, bitmap);
-//   return 1;
-// }
 
 void loop() {
   if (myData.gps_status) {
