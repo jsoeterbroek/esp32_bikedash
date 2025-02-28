@@ -3,8 +3,7 @@
 ## Battery Monitor & USB power
 * JMP Battery Monitor II
 * Quad Lock Motorcycle - Waterproof 12V To USB Smart Adaptor
-* 2x Quad Lock Weatherproof Wireless Charger Cable Kit
-* USB Male naar 2 Dual USB Female Y Splitter (The second USB is for phone).
+* Quad Lock Weatherproof Wireless Charger Cable Kit
 
 ## Controller
 
