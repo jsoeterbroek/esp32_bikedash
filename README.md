@@ -1,16 +1,26 @@
 # esp32_bikedash
-esp32_bikedash
+This project started out as a way to collect and display data from the Battery
+Monitor hardware module connected to my motorcycle battery via Bluetooth protocol.
+Due to some severe scope creep it has now grown to include GPS and temperature
+data.
+
+The setup consists of two parts; 1) the collector, responsible for collecting
+data and sending to the 2) dashbord, which is responsible for displaying data.
+The collector is going to be permanently attached to the bike and powered by the
+12v battery and will be hidden out of sight under the sadle so it can also be
+used as anti-theft device (with GSM integration). The display part is and powered 
+via USB and detachable in a nice case.
 
 ## Collector
 
 ### Power
-TBD; 18650 batteries or USB or Motorcycle battery
+Motorcycle battery
 
 ## Dashboard
 
 
 ### Power
-TBD; 18650 batteries or USB
+USB
 
 ## Parts
 see [PARTS.md](PARTS.md)
@@ -20,19 +30,18 @@ see [PARTS.md](PARTS.md)
 ### Dashboard
 * Motorcycle gear display
 * Motorcycle fuel display
-* Internal Power display icon (in case of 18650 battery power)
 
 ### Anti-theft
 * GSM integration
 
 ### ESP Home
-* Integration woth ESP Home (MQTT)
+* Integration with ESP Home (MQTT)
 
 see also [TODO.txt](TODO.txt)
 
 ## Pictures
 
-### Dashboard Version 1.2.1
+### Prototypes
 
-* [Dashboard setup screen](dashboard/pics/IMG_0747.jpeg)
-* [Dashboard main screen](dashboard/pics/IMG_0748.jpeg)
+* [Collector](dashboard/pics/IMG_0757.jpg)
+* [Dashboard main screen](dashboard/pics/IMG_0760.jpg)

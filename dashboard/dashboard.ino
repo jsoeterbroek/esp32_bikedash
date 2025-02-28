@@ -4,41 +4,32 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <TFT_eSPI.h>
-#include <fonts/Free_Fonts.h>
-#include <fonts/Orbitron_Medium_20.h>
+//#include <fonts/Free_Fonts.h>
+//#include <fonts/Orbitron_Medium_20.h>
 #include <fonts/Latin_Hiragana_24.h>
+#include <fonts/NotoSansBold15.h>
 #include <fonts/DSEG7.h>
-#include <Adafruit_MAX1704X.h>
-#include <Wire.h>
+
+#define latin Latin_Hiragana_24
+#define small NotoSansBold15
+#define digits DSEG7_Classic_Bold_32
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
-#define TFT_GREY             0x5AEB   // grey
-#define FG_COLOR             0x9986   // red
-#define RECT_FG_COLOR        0x5AEB   // grey
-#define RECT_BG_COLOR        0xE73C   // white
-#define LEVEL_FG_COLOR       0x5AEB   // grey
-#define LEVEL_BG_COLOR       0xE73C   // white
+#define FG_COLOR             TFT_WHITE
+#define BG_COLOR             TFT_LIGHTGREY
+#define RECT_LINE_COLOR      TFT_DARKGREY
+#define RECT_FG_COLOR        TFT_DARKGREY
+#define RECT_BG_COLOR        TFT_WHITE
+#define LEVEL_FG_COLOR       TFT_WHITE
+#define LEVEL_BG_COLOR       TFT_DARKGREY
 #define LEVEL_WARN1_FG_COLOR TFT_ORANGE
 #define LEVEL_WARN1_BG_COLOR TFT_ORANGE
 #define LEVEL_WARN2_FG_COLOR TFT_RED
 #define LEVEL_WARN2_BG_COLOR TFT_RED
-#define BG_COLOR             0x5AEB   // grey
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
-
-// Battery
-#define IP5306_ADDR 0x75
-#define MAX17048_ADDR 0x36
-#define I2C_SDA 21
-#define I2C_SCL 22
-Adafruit_MAX17048 maxlipo;
-int8_t battery_level = 0;
-int8_t old_level = 0;
-//bool i2c_supported = false;
-//bool has_max17048 = false;
-//bool has_ip5306 = false;
 
 // status flags
 bool SETUP_OK = false;
@@ -80,22 +71,10 @@ void setup() {
 
   //Initialize Serial Monitor
   Serial.begin(115200);
-  delay(2000); // 2 seconds FIXME: remove
+  delay(4000); // 4 seconds
   Serial.println("");
   Serial.println("------------- setup start --------------");
 
-  byte error;
-  Wire.beginTransmission(MAX17048_ADDR);
-  error = Wire.endTransmission();
-  if (error == 0) {
-    if (maxlipo.begin()) {
-      Serial.println("Detected MAX17048");
-    }
-  }
-
-  //pinoutInit();
-  //Serial.print("Value from pin: ");
-  //Serial.println(analogRead(ADC_PIN));
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(BG_COLOR);
@@ -117,11 +96,12 @@ void setup() {
 
   // setup 'splash' screen
   tft.setTextColor(TFT_WHITE); 
-  tft.setFreeFont(&Orbitron_Medium_20);
-  tft.drawString("// BMW R1100GS", 6, 104, GFXFF);
+  tft.loadFont(latin);
+  tft.drawString("// BMW R1100GS", 6, 104);
   String software = " esp32_bike ";
   software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
-  tft.drawString(software, 6, 190, GFXFF);
+  tft.drawString(software, 6, 190);
+  tft.unloadFont();
   delay(6000); // 6 seconds
   Serial.println("------------- setup end --------------");
   tft.fillScreen(BG_COLOR);            // Clear screen
@@ -160,94 +140,82 @@ void draw_battery_display_box_blocks(int32_t _xx, int32_t _yy, int8_t _batt_perc
   uint8_t step = 0;
 
   if (_batt_perc < 5) { 
-      for (int i = 1; i<=5 ; i++) {
-        _xx = 112; _xx = _xx + step;
-        draw_battery_level_box(_xx, _yy, 0, 2);
-        step = step + 22;
-      }
+    for (int i = 1; i<=5 ; i++) {
+      _xx = 116; _xx = _xx + step;
+      draw_battery_level_box(_xx, _yy, 0, 2);
+      step = step + 22;
+    }
   } else if (_batt_perc < 21) { 
-      for (int i = 1; i<=5 ; i++) {
-        _xx = 112; _xx = _xx + step;
-        if (i <= 1) { _f = 1; } else { _f = 0; }
-        draw_battery_level_box(_xx, _yy, _f, 2);
-        step = step + 22;
-      }
+    for (int i = 1; i<=5 ; i++) {
+      _xx = 116; _xx = _xx + step;
+      if (i <= 1) { _f = 1; } else { _f = 0; }
+      draw_battery_level_box(_xx, _yy, _f, 2);
+      step = step + 22;
+    }
   } else if (_batt_perc < 41) {
-      for (int i = 1; i<=5 ; i++) {
-        _xx = 112; _xx = _xx + step;
-        if (i <= 2) { _f = 1; } else { _f = 0; }
-        draw_battery_level_box(_xx, _yy, _f, 1);
-        step = step + 22;
-      }
+    for (int i = 1; i<=5 ; i++) {
+      _xx = 116; _xx = _xx + step;
+      if (i <= 2) { _f = 1; } else { _f = 0; }
+      draw_battery_level_box(_xx, _yy, _f, 1);
+      step = step + 22;
+    }
   } else if (_batt_perc < 61) {
-      for (int i = 1; i<=5 ; i++) {
-        _xx = 112; _xx = _xx + step;
-        if (i <= 3) { _f = 1; } else { _f = 0; }
-        draw_battery_level_box(_xx, _yy, _f, 0);
-        step = step + 22;
-      }
+    for (int i = 1; i<=5 ; i++) {
+      _xx = 116; _xx = _xx + step;
+      if (i <= 3) { _f = 1; } else { _f = 0; }
+      draw_battery_level_box(_xx, _yy, _f, 0);
+      step = step + 22;
+    }
   } else if (_batt_perc < 90) {
-      for (int i = 1; i<=5 ; i++) {
-        _xx = 112; _xx = _xx + step;
-        if (i <= 4) { _f = 1; } else { _f = 0; }
-        draw_battery_level_box(_xx, _yy, _f, 0);
-        step = step + 22;
-      }
+    for (int i = 1; i<=5 ; i++) {
+      _xx = 116; _xx = _xx + step;
+      if (i <= 4) { _f = 1; } else { _f = 0; }
+      draw_battery_level_box(_xx, _yy, _f, 0);
+      step = step + 22;
+    }
   } else if (_batt_perc >= 90) {
-      for (int i = 1; i<=5 ; i++) {
-        _xx = 112; _xx = _xx + step;
-        if (i <= 5) { _f = 1; } else { _f = 0; }
-        draw_battery_level_box(_xx, _yy, _f, 0);
-        step = step + 22;
-      }
+    for (int i = 1; i<=5 ; i++) {
+      _xx = 116; _xx = _xx + step;
+      if (i <= 5) { _f = 1; } else { _f = 0; }
+      draw_battery_level_box(_xx, _yy, _f, 0);
+      step = step + 22;
+    }
   }
 }
 
 void draw_battery_display_box() {
-  int32_t _x = 4; int32_t _y = 28;
-  int32_t _w = 232; int32_t _h = 70;
+  int32_t _x = 4; int32_t _y = 32;
+  int32_t _w = 232; int32_t _h = 66;
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
-  spr.setTextColor(RECT_BG_COLOR);
-  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_BG_COLOR);
-  spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_FG_COLOR);
+  spr.setTextColor(RECT_FG_COLOR);
+  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_LINE_COLOR);
+  spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
   // label
-  spr.setFreeFont(FSS12);
-  spr.setTextSize(0);
   //spr.setFreeFont(&Latin_Hiragana_24);
 
   /////////////////
   // BIKE battery
   int8_t bike_batt_perc = (int)myData.batt_perc;
   // start car battery icon
-  spr.fillRect(10, 14, 24, 16, RECT_BG_COLOR);
-  spr.fillRect(14, 10, 4, 4, RECT_BG_COLOR);
-  spr.fillRect(26, 10, 4, 4, RECT_BG_COLOR);
-  spr.drawLine(14, 22, 18, 22, RECT_FG_COLOR);
-  spr.drawLine(26, 22, 30, 22, RECT_FG_COLOR);
-  spr.drawLine(28, 20, 28, 24, RECT_FG_COLOR);
+  spr.fillRect(10, 32, 24, 16, RECT_FG_COLOR);
+  spr.fillRect(14, 28, 4, 4, RECT_FG_COLOR);
+  spr.fillRect(26, 28, 4, 4, RECT_FG_COLOR);
+  spr.drawLine(14, 40, 18, 40, RECT_BG_COLOR);
+  spr.drawLine(26, 40, 30, 40, RECT_BG_COLOR);
+  spr.drawLine(28, 38, 28, 42, RECT_BG_COLOR);
   // end car battery icon
-  spr.drawFloat(myData.batt_volt, 1, 64, 20);
-  spr.drawString("v", 96, 20);
+  spr.loadFont(latin);
+  spr.setTextSize(1);
+  spr.drawFloat(myData.batt_volt, 1, 68, 40);
+  spr.setTextSize(0);
+  spr.drawString("v", 100, 40);
+  spr.unloadFont();
   // draw the blocks
   // TEST: uncomment to test (with warning colors)
-  // bike_batt_perc = 22;
-  draw_battery_display_box_blocks(112, 18, bike_batt_perc);
-
-  /////////////////
-  // dashboard battery
-  int8_t intern_batt_perc = (int)myData.batt_perc;
-   // start battery icon
-  spr.fillRect(10, 44, 22, 12, RECT_BG_COLOR);
-  spr.fillRect(32, 48, 4, 4, RECT_BG_COLOR);
-  // end battery icon
-  spr.drawFloat(myData.batt_volt, 1, 64, 46);
-  spr.drawString("v", 96, 46);
-  // draw the blocks
-  // TEST: uncomment to test (with warning colors)
-  intern_batt_perc = 22;
-  draw_battery_display_box_blocks(112, 44, intern_batt_perc);
+  bike_batt_perc = 69;
+  draw_battery_display_box_blocks(116, 34, bike_batt_perc);
 
   // push and delete sprite
   spr.pushSprite(_x, _y, TFT_TRANSPARENT);
@@ -259,15 +227,16 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
-  spr.setTextColor(RECT_BG_COLOR);
-  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_BG_COLOR);
-  spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_FG_COLOR);
+  spr.setTextColor(RECT_FG_COLOR);
+  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_LINE_COLOR);
+  spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
   // label
   spr.setTextDatum(TL_DATUM);
-  spr.setFreeFont(FSSO9);
-  spr.drawString(_display_label, 3, 6);
+  spr.loadFont(small);
+  spr.drawString(_display_label, 6, 6);
   //spr.drawString(_display_unit, 102, 6);
   // main display number
+  spr.unloadFont();
   spr.setTextDatum(MC_DATUM);
   spr.setFreeFont(&DSEG7_Classic_Bold_32);
   spr.drawFloat(_display, _d, _w / 2, 46);
@@ -287,51 +256,12 @@ void draw() {
   // during day light background, dark foreground
   // during night dark background, light foreground
   tft.setTextColor(TFT_WHITE);
-  tft.setFreeFont(FSS9);
-  tft.fillRect(0, 0, 280, 24, TFT_ORANGE);
+  tft.loadFont(latin);
+  tft.setTextSize(0);
 
-  int16_t lx = 0; int16_t ly = 0; int16_t ls = 0;
-  /*****************************************************************************
-   * 'led' warning lights
-   *
-   *  esp -> green  : data received ok
-   *  esp -> red   : data not received
-   * 
-   *  gps -> green  : outdoors, data received ok
-   *  gps -> red   : data not received
-   ****************************************************************************/
-  lx = 20; ly = 3; ls = 4;
-  tft.setFreeFont(FSS9);
-  tft.drawString("esp", lx, ly, GFXFF);  
-  if (ESP_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_GREEN);
-  } else {
-    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_RED);
-  }
+  tft.fillRect(0, 0, 280, 28, TFT_ORANGE);
 
-  lx = 72; ly = 3; ls = 4;
-  tft.setFreeFont(FSS9);
-  tft.drawString("gps", lx, ly, GFXFF);  
-  if (GPS_DATA_RECVD_OK) {
-    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_GREEN);
-  } else {
-    tft.fillSmoothCircle(lx-10, ly+9, ls, TFT_RED);
-  }
-
-  /*****************************************************************************
-   * GPS satellites
-   ****************************************************************************/
-  tft.setFreeFont(FSS9);
-  if (GPS_DATA_RECVD_OK) {
-    tft.setCursor(130, 18);
-    tft.print(myData.gps_satellites);
-    //tft.println(" satt");
-  }
-
- /*****************************************************************************
-   * GPS Time 
-   ****************************************************************************/
-  lx = 186; ly = 18;
+  // GPS Time 
   if (GPS_DATA_RECVD_OK) {
     // make string "HH:MM"
     // TODO: 24-hours format, summertime & wintertime, CET timezone
@@ -343,9 +273,9 @@ void draw() {
       myData.gps_time_hour+1,
       myData.gps_time_minute);
     String gps_time(buffer);
-    tft.setCursor(lx, ly);
-    tft.println(gps_time);
+    tft.drawString(gps_time, 88, 4);
   }
+  tft.unloadFont();
 
   tft.setTextColor(FG_COLOR);
   int32_t x = 0; int32_t y = 0; int32_t r = 10;
