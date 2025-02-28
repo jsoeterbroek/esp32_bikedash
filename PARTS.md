@@ -4,7 +4,7 @@
 * JMP Battery Monitor II
 * Quad Lock Motorcycle - Waterproof 12V To USB Smart Adaptor
 * 2x Quad Lock Weatherproof Wireless Charger Cable Kit
-* USB Male naar 2 Dual USB Female Y Splitter
+* USB Male naar 2 Dual USB Female Y Splitter (The second USB is for phone).
 
 ## Controller
 
@@ -15,13 +15,13 @@
 * Temp & Humidity sensor module - Asair AM2301
 
 ### Board
-TBD
+Custom
 
 ### Case
 TBD
 
 ### Power
-*  Power buck converter - HW-613
+*  Power buck converter 12v to 5v - Module HW-613
 
 ## Dashboard
 
