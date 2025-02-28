@@ -214,7 +214,7 @@ void draw_battery_display_box() {
   spr.unloadFont();
   // draw the blocks
   // TEST: uncomment to test (with warning colors)
-  bike_batt_perc = 69;
+  // bike_batt_perc = 69;
   draw_battery_display_box_blocks(116, 34, bike_batt_perc);
 
   // push and delete sprite
