@@ -4,8 +4,6 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <TFT_eSPI.h>
-//#include <fonts/Free_Fonts.h>
-//#include <fonts/Orbitron_Medium_20.h>
 #include <fonts/Latin_Hiragana_24.h>
 #include <fonts/NotoSansBold15.h>
 #include <fonts/DSEG7.h>
@@ -18,7 +16,7 @@
 #define SCREEN_HEIGHT 320
 #define FG_COLOR             TFT_WHITE
 #define BG_COLOR             TFT_LIGHTGREY
-#define RECT_LINE_COLOR      TFT_DARKGREY
+#define LINE_COLOR           TFT_DARKGREY
 #define RECT_FG_COLOR        TFT_DARKGREY
 #define RECT_BG_COLOR        TFT_WHITE
 #define LEVEL_FG_COLOR       TFT_WHITE
@@ -71,9 +69,7 @@ void setup() {
 
   //Initialize Serial Monitor
   Serial.begin(115200);
-  delay(4000); // 4 seconds
-  Serial.println("");
-  Serial.println("------------- setup start --------------");
+  delay(2000); // 2 seconds
 
   tft.init();
   tft.setRotation(0);
@@ -95,15 +91,11 @@ void setup() {
   esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
 
   // setup 'splash' screen
-  tft.setTextColor(TFT_WHITE); 
-  tft.loadFont(latin);
-  tft.drawString("// BMW R1100GS", 6, 104);
-  String software = " esp32_bike ";
-  software += String('V') + version_major() + "." + version_minor() + "." + version_patch();
-  tft.drawString(software, 6, 190);
-  tft.unloadFont();
+  String software = "\n  esp32_bike ";
+  software += String("V") + version_major() + "." + version_minor() + "." + version_patch();
+  draw_splash_box(20, 20, 200, 80, software);
+
   delay(6000); // 6 seconds
-  Serial.println("------------- setup end --------------");
   tft.fillScreen(BG_COLOR);            // Clear screen
 }
 
@@ -190,7 +182,7 @@ void draw_battery_display_box() {
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.setTextColor(RECT_FG_COLOR);
-  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_LINE_COLOR);
+  spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
   spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
   // label
   //spr.setFreeFont(&Latin_Hiragana_24);
@@ -228,7 +220,7 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.setTextColor(RECT_FG_COLOR);
-  spr.drawRoundRect(0, 0, _w, _h, 10, RECT_LINE_COLOR);
+  spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
   spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
   // label
   spr.setTextDatum(TL_DATUM);
@@ -245,9 +237,26 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
   spr.deleteSprite();
 }
 
-void draw_no_esp() {
+void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _text) {
+  spr.createSprite(_w, _h);
+  spr.fillSprite(TFT_TRANSPARENT);
+  // background 
+  spr.setTextColor(RECT_FG_COLOR);
+  spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
+  spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
+  // label
+  spr.setTextDatum(TC_DATUM);
+  spr.loadFont(small);
+  tft.setTextSize(2);
+  spr.drawString(_text, _w / 2, 4);
+  spr.pushSprite(_x, _y, TFT_TRANSPARENT);
+  spr.unloadFont();
+  spr.deleteSprite();
+}
 
-  // TODO: once design of main screen is settled, build this screen
+
+void draw_no_esp() {
+  draw_splash_box(20, 20, 200, 100, "\n  No ESP data..\n\n  Check if Colector is\n  online");
 }
 
 void draw() {
@@ -311,5 +320,5 @@ void loop() {
   } else {
     draw_no_esp();
   }
-  delay(1000);
+  delay(1000); // 1 second
 }
