@@ -1,3 +1,4 @@
 ./collector/collector.ino:209: warning: FIXME: BLE address into var
-./dashboard/dashboard.ino:264: warning: TODO: night and day display,
-./dashboard/dashboard.ino:276: warning: TODO: 24-hours format, summertime & wintertime, CET timezone
+./dashboard/dashboard.ino:282: warning: TODO: night and day display,
+./dashboard/dashboard.ino:286: warning: TODO: check age of GPS data...
+./dashboard/dashboard.ino:298: warning: TODO: 24-hours format, summertime & wintertime, CET timezone

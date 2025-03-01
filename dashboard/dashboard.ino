@@ -14,6 +14,7 @@
 
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
+#define TEXT_COLOR           TFT_DARKGREY
 #define FG_COLOR             TFT_WHITE
 #define BG_COLOR             TFT_LIGHTGREY
 #define LINE_COLOR           TFT_DARKGREY
@@ -21,6 +22,8 @@
 #define RECT_BG_COLOR        TFT_WHITE
 #define LEVEL_FG_COLOR       TFT_WHITE
 #define LEVEL_BG_COLOR       TFT_DARKGREY
+#define NOTIFY_FG_COLOR      TFT_WHITE
+#define NOTIFY_BG_COLOR      TFT_ORANGE
 #define LEVEL_WARN1_FG_COLOR TFT_ORANGE
 #define LEVEL_WARN1_BG_COLOR TFT_ORANGE
 #define LEVEL_WARN2_FG_COLOR TFT_RED
@@ -37,6 +40,7 @@ bool GPS_OK = false;
 bool GPS_DATA_RECVD_OK = false;
 bool GSM_OK = false;
 bool GSM_DATA_RECVD_OK = false;
+bool GSM_DATA_RECVD_AGE_OK = false;
 bool TEMP_OK = false;
 bool TEMP_DATA_RECVD_OK = false;
 bool BATT_OK = false;
@@ -181,11 +185,8 @@ void draw_battery_display_box() {
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
-  spr.setTextColor(RECT_FG_COLOR);
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
   spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
-  // label
-  //spr.setFreeFont(&Latin_Hiragana_24);
 
   /////////////////
   // BIKE battery
@@ -199,10 +200,11 @@ void draw_battery_display_box() {
   spr.drawLine(28, 38, 28, 42, RECT_BG_COLOR);
   // end car battery icon
   spr.loadFont(latin);
+  spr.setTextColor(TEXT_COLOR);
   spr.setTextSize(1);
-  spr.drawFloat(myData.batt_volt, 1, 68, 40);
+  spr.drawFloat(myData.batt_volt, 1, 68, 28);
   spr.setTextSize(0);
-  spr.drawString("v", 100, 40);
+  spr.drawString("v", 100, 28);
   spr.unloadFont();
   // draw the blocks
   // TEST: uncomment to test (with warning colors)
@@ -219,21 +221,38 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
-  spr.setTextColor(RECT_FG_COLOR);
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
   spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
   // label
   spr.setTextDatum(TL_DATUM);
   spr.loadFont(small);
+  spr.setTextColor(TEXT_COLOR);
   spr.drawString(_display_label, 6, 6);
   //spr.drawString(_display_unit, 102, 6);
   // main display number
   spr.unloadFont();
   spr.setTextDatum(MC_DATUM);
   spr.setFreeFont(&DSEG7_Classic_Bold_32);
+  spr.setTextColor(TEXT_COLOR);
   spr.drawFloat(_display, _d, _w / 2, 46);
   // push and delete sprite
   spr.pushSprite(_x, _y, TFT_TRANSPARENT);
+  spr.deleteSprite();
+}
+
+void draw_notify_box(String _text) {
+  int32_t _x = 0; int32_t _y = 0; 
+  int32_t _w = 280; int32_t _h = 28;
+  spr.createSprite(_w, _h);
+  spr.fillSprite(TFT_TRANSPARENT);
+  spr.fillRect(_x, _y, _w, _h, NOTIFY_BG_COLOR);
+  spr.setTextDatum(TC_DATUM);
+  spr.loadFont(small);
+  spr.setTextColor(NOTIFY_FG_COLOR, NOTIFY_BG_COLOR);
+  tft.setTextSize(2);
+  spr.drawString(_text, 48, 6);
+  spr.pushSprite(_x, _y, TFT_TRANSPARENT);
+  spr.unloadFont();
   spr.deleteSprite();
 }
 
@@ -241,12 +260,12 @@ void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _tex
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
-  spr.setTextColor(RECT_FG_COLOR);
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
   spr.fillRoundRect(1, 1, _w-2, _h-2, 10, RECT_BG_COLOR);
   // label
   spr.setTextDatum(TC_DATUM);
   spr.loadFont(small);
+  spr.setTextColor(RECT_FG_COLOR);
   tft.setTextSize(2);
   spr.drawString(_text, _w / 2, 4);
   spr.pushSprite(_x, _y, TFT_TRANSPARENT);
@@ -254,9 +273,8 @@ void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _tex
   spr.deleteSprite();
 }
 
-
 void draw_no_esp() {
-  draw_splash_box(20, 20, 200, 100, "\n  No ESP data..\n\n  Check if Colector is\n  online");
+  draw_notify_box("  No ESP data..");
 }
 
 void draw() {
@@ -264,12 +282,16 @@ void draw() {
   // TODO: night and day display,
   // during day light background, dark foreground
   // during night dark background, light foreground
-  tft.setTextColor(TFT_WHITE);
+
+  if (GPS_DATA_RECVD_OK) { // TODO: check age of GPS data...
+    draw_notify_box(" ");
+  } else {
+    draw_notify_box(" No GPS data..");
+  }
+
   tft.loadFont(latin);
-  tft.setTextSize(0);
-
-  tft.fillRect(0, 0, 280, 28, TFT_ORANGE);
-
+  tft.setTextSize(2);
+  tft.setTextColor(NOTIFY_FG_COLOR, NOTIFY_BG_COLOR);
   // GPS Time 
   if (GPS_DATA_RECVD_OK) {
     // make string "HH:MM"
@@ -282,11 +304,11 @@ void draw() {
       myData.gps_time_hour+1,
       myData.gps_time_minute);
     String gps_time(buffer);
-    tft.drawString(gps_time, 88, 4);
+    tft.drawString(gps_time, 160, 4);
   }
   tft.unloadFont();
 
-  tft.setTextColor(FG_COLOR);
+  tft.setTextColor(TEXT_COLOR);
   int32_t x = 0; int32_t y = 0; int32_t r = 10;
   int32_t t = 0; int32_t w = 0; int32_t h = 0;
 
