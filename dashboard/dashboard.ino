@@ -7,25 +7,11 @@
 #include <TFT_eSPI.h>
 #include <fonts/DSEG7.h>
 
-
 #define digits DSEG7_Classic_Bold_32
 
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
 
-// status flags
-bool SETUP_OK = false;
-bool ESP_SETUP_OK = false;
-bool ESP_DATA_RECVD_OK = false;
-bool GPS_OK = false;
-bool GPS_DATA_RECVD_OK = false;
-bool GSM_OK = false;
-bool GSM_DATA_RECVD_OK = false;
-bool GSM_DATA_RECVD_AGE_OK = false;
-bool TEMP_OK = false;
-bool TEMP_DATA_RECVD_OK = false;
-bool BATT_OK = false;
-bool BATT_DATA_RECVD_OK = false;
 
 // Create a struct_message to hold incoming data
 struct_message myData;
@@ -35,10 +21,10 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&myData, incomingData, sizeof(myData));
   Serial.print("Bytes received: ");
   Serial.println(len);
-  //Serial.println("GPS data: ");
-  //Serial.println("  time: ");
-  //Serial.print("    hour: "); Serial.println(myData.gps_time_hour);
-  //Serial.print("    minute: "); Serial.println(myData.gps_time_minute);
+  Serial.println("GPS data: ");
+  Serial.println("  time: ");
+  Serial.print("    hour: "); Serial.println(myData.gps_time_hour);
+  Serial.print("    minute: "); Serial.println(myData.gps_time_minute);
   ////Serial.println("  satellites: ");
   //Serial.print("    found: "); Serial.println(myData.gps_satellites);
   //Serial.println("  location: ");
@@ -164,6 +150,7 @@ void draw_battery_display_box() {
   int32_t _x = 4; int32_t _y = 32;
   int32_t _w = 232; int32_t _h = 66;
   spr.createSprite(_w, _h);
+  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
@@ -197,9 +184,10 @@ void draw_battery_display_box() {
   spr.deleteSprite();
 }
 
-void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String _display_unit, String _display_label) {
-  int32_t _w = 115; int32_t _h = 70;
+void draw_display_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, float _display, uint8_t _d, String _display_unit, String _display_label) {
+  //int32_t _w = 115; int32_t _h = 70;
   spr.createSprite(_w, _h);
+  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
@@ -207,15 +195,23 @@ void draw_display_box(int32_t _x, int32_t _y, float _display, uint8_t _d, String
   // label
   spr.setTextDatum(TL_DATUM);
   spr.loadFont(small);
-  spr.setTextColor(TEXT_COLOR);
+  spr.setTextSize(1);
+  spr.setTextColor(TEXT_COLOR, RECT_BG_COLOR);
   spr.drawString(_display_label, 6, 6);
-  //spr.drawString(_display_unit, 102, 6);
+  spr.drawString(_display_unit, 56, 6);
   // main display number
   spr.unloadFont();
   spr.setTextDatum(MC_DATUM);
   spr.setFreeFont(&DSEG7_Classic_Bold_32);
   spr.setTextColor(TEXT_COLOR);
-  spr.drawFloat(_display, _d, _w / 2, 46);
+  if (_display_label.equals("Speed")) {
+    spr.setTextSize(2);
+    spr.drawFloat(_display, _d, _w / 2, 58);
+  } else {
+    spr.setTextSize(1);
+    spr.drawFloat(_display, _d, _w / 2, 46);
+  }
+  spr.unloadFont();
   // push and delete sprite
   spr.pushSprite(_x, _y, TFT_TRANSPARENT);
   spr.deleteSprite();
@@ -225,6 +221,7 @@ void draw_notify_box(String _text) {
   int32_t _x = 0; int32_t _y = 0; 
   int32_t _w = 280; int32_t _h = 28;
   spr.createSprite(_w, _h);
+  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   spr.fillRect(_x, _y, _w, _h, NOTIFY_BG_COLOR);
   spr.setTextDatum(TC_DATUM);
@@ -239,6 +236,7 @@ void draw_notify_box(String _text) {
 
 void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _text) {
   spr.createSprite(_w, _h);
+  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
@@ -267,7 +265,7 @@ void draw() {
   if (GPS_DATA_RECVD_OK) { // TODO: check age of GPS data...
     draw_notify_box(" ");
   } else {
-    draw_notify_box(" No GPS data..");
+    draw_notify_box("  No GPS data..");
   }
 
   tft.loadFont(latin);
@@ -300,18 +298,17 @@ void draw() {
   /*****************************************************************************
    * Temp & humidity 
    ****************************************************************************/
-  draw_display_box(4, 100, myData.temp, 1, "C", "Temperature");
-  draw_display_box(122, 100, myData.hum, 1, "%", "Humidity");
+  draw_display_box(4, 100, 115, 70, myData.temp, 1, "C", "Temp");
+  draw_display_box(122, 100, 115, 70, myData.fuel_perc, 0, "%", "Fuel");
   /*****************************************************************************
    * Fuel
    ****************************************************************************/  
-  draw_display_box(4, 172, 0, 0, " ", "Free");
-  draw_display_box(122, 172, myData.fuel_perc, 0, "%", "Fuel");
+  // draw_display_box(4, 172, 0, 0, " ", "Free");
   /*****************************************************************************
    * GPS Altitude & ground speed
    ****************************************************************************/
-  draw_display_box(4, 244, myData.gps_altitude_meters, 1, "m", "Altitude");
-  draw_display_box(122, 244, myData.gps_speed_kmph, 0, "Km", "Speed");
+  //draw_display_box(4, 244, myData.gps_altitude_meters, 1, "m", "Altitude");
+  draw_display_box(TFT_WIDTH / 2 - 100, 200, 200, 100, myData.gps_speed_kmph, 0, "Km/H", "Speed");
 }
 
 void loop() {

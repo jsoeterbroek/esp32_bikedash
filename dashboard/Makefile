@@ -103,9 +103,10 @@ FQBN        ?= arduino:avr:uno
 SPEEDLABEL = 115200
 
 ifdef GIT_VERSION
-  CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(GIT_VERSION)\"
+  CFLAGS = --build-property compiler.cpp.extra_flags=-DMYVERSION=\"$(GIT_VERSION)\" \
+	   --build-property $(BUILD_PROPERTIES)
 else
-  CFLAGS =
+  CFLAGS = --build-property $(BUILD_PROPERTIES)
 endif
 
 V          ?= 0
@@ -164,7 +165,6 @@ $(info BIN         is [${BIN}])
 $(info SERIAL_DEV  is [${SERIAL_DEV}])
 $(info CUSTOM_LIBS is [${CUSTOM_LIBS}])
 $(info SPEEDLABEL  is [${SPEEDLABEL}])
-
 
 all: $(ELF) upload
 .PHONY: all
@@ -236,5 +236,11 @@ requirements:
 	else echo "---> MISSING requirements.txt file"; \
 	fi
 
+monitor:
+	@if [ ! -c $(SERIAL_DEV) ] ; \
+	then echo "---> ERROR: Serial Device not available, please set the SERIAL_DEV environment variable" ; \
+	else echo "---> Monitoring..\n"; \
+	arduino-cli monitor -b $(FQBN) -p $(SERIAL_DEV) --config 115200 ; \
+	fi
 
 
