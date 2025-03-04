@@ -10,3 +10,5 @@ FQBN        ?= esp32:esp32:esp32
 SERIAL_DEV  ?= /dev/ttyUSB0
 SERIAL_BAUD ?= 115200
 #V ?= 1
+ARDUINO-CLI_CONFIG ?= arduino-cli.yaml
+BUILD_PROPERTIES =  "build.extra_flags=\"-DMY_DEFINE=\"hello world\"\""
