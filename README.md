@@ -36,6 +36,8 @@ see [PARTS.md](PARTS.md)
 
 ### Anti-theft
 * GSM integration
+* Use the dashboard to lock(default)/unlock bike (battery)
+* Authenticate user via dashboard
 
 ### ESP Home
 * Integration with ESP Home (MQTT)
