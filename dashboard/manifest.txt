@@ -1,3 +1,6 @@
 Library Name                        Version    Author                    Architecture    Type
 ----------------------------------- ---------- ------------------------- --------------- -------
-WiFi                                3.2.0      Hristo Gochkov            esp32           system
+SPI                                 3.2.0      Hristo Gochkov            esp32           system
+TFT_eSPI                            2.5.43     Bodmer                    *               user
+TFT_eSPI                            2.5.43     Bodmer                    *               user
+XPT2046_Bitbang_Slim                2.0.1      Claus Näveke <github@nae esp32           user

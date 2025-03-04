@@ -6,14 +6,18 @@
 #define TFT_WIDTH  240
 #define TFT_HEIGHT 320
 
-//#define TFT_RGB_ORDER TFT_BGR 
+#define TFT_RGB_ORDER TFT_BGR 
 
-//#define TFT_INVERSION_OFF
+// If colours are inverted (white shows as black) then uncomment one of the next
+// 2 lines try both options, one of the options should correct the inversion.
+
+#define TFT_INVERSION_ON
+// #define TFT_INVERSION_OFF
 
 #define TFT_BL    27            // LED back-light control pin
 #define TFT_BACKLIGHT_ON HIGH  // Level to turn ON back-light (HIGH or LOW)
 
-//#define ESP32_DMA
+#define ESP32_DMA
 #define TFT_CS   15 //     10 or 34 (FSPI CS0) 
 #define TFT_MOSI 13 //     11 or 35 (FSPI D)
 #define TFT_SCLK 14 //     12 or 36 (FSPI CLK)
@@ -23,8 +27,8 @@
  //#define TFT_RST   4  // Reset pin (could connect to RST pin)
 #define TFT_RST  -1  // Set TFT_RST to -1 if display RESET is connected to ESP32 board RST
 
-#define TOUCH_CS 33     // Chip select pin (T_CS) of touch screen
-#define TOUCH_OFFSET_ROTATION	1     // Chip select pin (T_CS) of touch screen
+//#define TOUCH_CS 33                 // Chip select pin (T_CS) of touch screen
+//#define TOUCH_OFFSET_ROTATION	1   // Chip select pin (T_CS) of touch screen
 
 
 #define LOAD_GLCD   // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
@@ -41,4 +45,4 @@
 #define SPI_READ_FREQUENCY  10000000 // 6 MHz is the maximum SPI read speed for the ST7789V
 #define SPI_TOUCH_FREQUENCY 2500000
 
-#define USE_HSPI_PORT
+//#define USE_HSPI_PORT

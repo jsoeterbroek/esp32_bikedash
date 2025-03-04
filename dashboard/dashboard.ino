@@ -2,14 +2,18 @@
  ******************************************************************************/
 #include <../common/common.h>
 #include <dashboard.h>
+#include <colors.h>
 #include <esp_now.h>
 #include <WiFi.h>
+#include <SPI.h>
 #include <TFT_eSPI.h>
 #include <fonts/DSEG7.h>
 
 #define digits DSEG7_Classic_Bold_32
 
-TFT_eSPI tft = TFT_eSPI();
+
+
+TFT_eSPI tft = TFT_eSPI(); // User_Setup_cyd32.h
 TFT_eSprite spr = TFT_eSprite(&tft);
 
 
@@ -40,7 +44,7 @@ void setup() {
 
   //Initialize Serial Monitor
   Serial.begin(115200);
-  delay(2000); // 2 seconds
+  delay(1000); // 1 seconds
 
   tft.init();
   tft.setRotation(0);
@@ -150,7 +154,6 @@ void draw_battery_display_box() {
   int32_t _x = 4; int32_t _y = 32;
   int32_t _w = 232; int32_t _h = 66;
   spr.createSprite(_w, _h);
-  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
@@ -187,7 +190,6 @@ void draw_battery_display_box() {
 void draw_display_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, float _display, uint8_t _d, String _display_unit, String _display_label) {
   //int32_t _w = 115; int32_t _h = 70;
   spr.createSprite(_w, _h);
-  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
@@ -221,13 +223,12 @@ void draw_notify_box(String _text) {
   int32_t _x = 0; int32_t _y = 0; 
   int32_t _w = 280; int32_t _h = 28;
   spr.createSprite(_w, _h);
-  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   spr.fillRect(_x, _y, _w, _h, NOTIFY_BG_COLOR);
   spr.setTextDatum(TC_DATUM);
   spr.loadFont(small);
   spr.setTextColor(NOTIFY_FG_COLOR, NOTIFY_BG_COLOR);
-  tft.setTextSize(2);
+  spr.setTextSize(2);
   spr.drawString(_text, 48, 6);
   spr.pushSprite(_x, _y, TFT_TRANSPARENT);
   spr.unloadFont();
@@ -236,7 +237,6 @@ void draw_notify_box(String _text) {
 
 void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _text) {
   spr.createSprite(_w, _h);
-  spr.setSwapBytes(true);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
   spr.drawRoundRect(0, 0, _w, _h, 10, LINE_COLOR);
@@ -245,12 +245,13 @@ void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _tex
   spr.setTextDatum(TC_DATUM);
   spr.loadFont(small);
   spr.setTextColor(RECT_FG_COLOR);
-  tft.setTextSize(2);
+  spr.setTextSize(2);
   spr.drawString(_text, _w / 2, 4);
   spr.pushSprite(_x, _y, TFT_TRANSPARENT);
   spr.unloadFont();
   spr.deleteSprite();
 }
+
 
 void draw_no_esp() {
   draw_notify_box("  No ESP data..");
@@ -312,6 +313,7 @@ void draw() {
 }
 
 void loop() {
+
   if (myData.gps_status) {
     GPS_DATA_RECVD_OK = true;
   }

@@ -1,0 +1,43 @@
+//#ifndef COLORS_H
+//#define COLORS_H
+
+#define DARK_MODE // TODO: change via programmable button (or screen touch)
+
+// https://github.com/newdigate/rgb565_colors
+#define RGB565_BLUE_AZURE 0x041F
+#define RGB565_BLUE_LIGHT 0xAEBC
+#define RGB565_BLACK_DIM 0x6B4D
+#define RGB565_BLACK_OUTER_SPACE 0x4249 
+#define RGB565_GRAY_BATTLESHIP 0x8430
+#define RGB565_GRAY_MEDIUM 0xBDF7
+#define RGB565_GRAY_LIGHT 0xD69A
+#define RGB565_GRAY_WEB 0x8410
+#define RGB565_GRAY_STONE 0x9470
+#define RGB565_YELLOW 0xFFE0
+#define RGB565_RED 0xF800
+#define RGB565_RED_MAXIMUM 0xD104
+#define RGB565_ORANGE 0xFBE0
+#define RGB565_ORANGE_CADMIUM 0xEC25
+#define RGB565_GREEN_GO 0x054C
+#define RGB565_GREEN_FERN 0x75CF
+#define RGB565_WHITE 0xFFFF
+
+#define TEXT_COLOR           TFT_DARKGREY
+#define FG_COLOR             TFT_WHITE
+#define BG_COLOR             TFT_DARKGREY
+#define LINE_COLOR           TFT_LIGHTGREY
+#define RECT_FG_COLOR        TFT_DARKGREY
+#define RECT_BG_COLOR        TFT_WHITE
+#define LEVEL_FG_COLOR       TFT_WHITE
+#define LEVEL_BG_COLOR       TFT_DARKGREY
+
+#define NOTIFY_FG_COLOR      TFT_WHITE
+#define NOTIFY_BG_COLOR      TFT_ORANGE
+#define LEVEL_WARN1_FG_COLOR TFT_ORANGE
+#define LEVEL_WARN1_BG_COLOR TFT_ORANGE
+#define LEVEL_WARN2_FG_COLOR TFT_RED
+#define LEVEL_WARN2_BG_COLOR TFT_RED
+
+#define BUTTON_RED           RGB565_RED
+#define BUTTON_WHITE         TFT_WHITE
+#define BUTTON_GREEN         TFT_GREEN
