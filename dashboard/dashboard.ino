@@ -29,8 +29,8 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println("  time: ");
   Serial.print("    hour: "); Serial.println(myData.gps_time_hour);
   Serial.print("    minute: "); Serial.println(myData.gps_time_minute);
-  ////Serial.println("  satellites: ");
-  //Serial.print("    found: "); Serial.println(myData.gps_satellites);
+  Serial.println("  satellites: ");
+  Serial.print("    found: "); Serial.println(myData.gps_satellites);
   //Serial.println("  location: ");
   //Serial.print("    lat: "); Serial.println(myData.gps_lat);  
   ////Serial.print("    lon: "); Serial.println(myData.gps_lng);  
@@ -38,6 +38,9 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   //Serial.print("    meters: "); Serial.println(myData.gps_altitude_meters);  
   //Serial.println("-------");
   ESP_DATA_RECVD_OK = true;
+  if (myData.gps_satellites > 0) {
+    GPS_DATA_RECVD_OK = true;
+  }
 }
 
 void setup() {
@@ -252,7 +255,6 @@ void draw_splash_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h, String _tex
   spr.deleteSprite();
 }
 
-
 void draw_no_esp() {
   draw_notify_box("  No ESP data..");
 }
@@ -314,9 +316,6 @@ void draw() {
 
 void loop() {
 
-  if (myData.gps_status) {
-    GPS_DATA_RECVD_OK = true;
-  }
   if (ESP_DATA_RECVD_OK) {
     draw();
   } else {

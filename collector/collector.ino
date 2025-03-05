@@ -39,7 +39,6 @@ uint8_t dashboard_broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
 
 // PINOUTS
 // 
-//
 // Temp module (ASAIR AM2301A)
 // VCC  ---> 5V
 // GND  ---> GND
@@ -48,19 +47,6 @@ uint8_t dashboard_broadcastAddress[] = {0x1c, 0x69, 0x20, 0xcd, 0x4c, 0xe8};
 // GPS module (neo-6m)
 // GPS Tx --> GPIO5
 // GPS Rx --> GPIO2
-
-// power converter
-//  hw-613
-// pin 1 vo+       power out (5v)
-// pin 2 gnd	   GND 
-// pin 3 in +      power in  (12v)  
-// pin 4 en                   
-
-// INA219
-// VCC  ---> 5V, 
-// GND  ---> GND 
-// SDA  ---> LP_I2C_SDA  ->  pin 6
-// SCL  ---> LP_I2C_SCL  ->  pin 7
 
 #define RXD2 5
 #define TXD2 2
@@ -248,6 +234,8 @@ void setup() {
   gpsSerial.begin(GPS_BAUD, SERIAL_8N1, RXD2, TXD2);
   Serial.println(F("gps.Serial started at 9600 baud rate"));
 
+  delay(5000);
+
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -313,7 +301,7 @@ void loop() {
 
   while (gpsSerial.available() > 0) {
     if (gps.encode(gpsSerial.read())) {
-      // displayGPSInfo();
+      displayGPSInfo();
       GPS_OK = true;
       sendGPSInfo();
       GPS_DATA_SEND_OK = true;
@@ -325,6 +313,25 @@ void loop() {
     GPS_OK = false;
     GPS_DATA_SEND_OK = false;
   }
+
+// // Testing for Failed checksum
+// Serial.print("Sentences that failed checksum=");
+// Serial.println(gps.failedChecksum());
+ 
+// // Testing overflow in SoftwareSerial is sometimes useful too.
+// Serial.print("Soft Serial device overflowed? ");
+// Serial.println(ss.overflow() ? "YES!" : "No");
+
+// Debug: if we haven't seen lots of data in 5 seconds, something's wrong.
+// if (millis() > 5000 && gps.charsProcessed() < 10) // uh oh
+// {
+//   Serial.println("ERROR: not getting any GPS data!");
+//   // dump the stream to Serial
+//   Serial.println("GPS stream dump:");
+//   while (true) // infinite loop
+//     if (gpsSerial.available() > 0) // any data coming in?
+//       Serial.write(gpsSerial.read());
+// }
 
   //Serial.println(F("*----------------------------------------*"));
   // Get temperature event and print its value.
