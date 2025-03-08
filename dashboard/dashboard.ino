@@ -11,11 +11,8 @@
 
 #define digits DSEG7_Classic_Bold_32
 
-
-
-TFT_eSPI tft = TFT_eSPI(); // User_Setup_cyd32.h
+TFT_eSPI    tft = TFT_eSPI();
 TFT_eSprite spr = TFT_eSprite(&tft);
-
 
 // Create a struct_message to hold incoming data
 struct_message myData;
@@ -41,40 +38,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   if (myData.gps_satellites > 0) {
     GPS_DATA_RECVD_OK = true;
   }
-}
-
-void setup() {
-
-  //Initialize Serial Monitor
-  Serial.begin(115200);
-  delay(1000); // 1 seconds
-
-  tft.init();
-  tft.setRotation(0);
-  tft.fillScreen(BG_COLOR);
-
-  //Set device as a Wi-Fi Station
-  WiFi.mode(WIFI_STA);
-
-  //Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
-  Serial.println("initialised ESP-NOW OK");
-  ESP_SETUP_OK = true;
-
-  // Once ESPNow is successfully Init, we will register
-  // for recv CB to get recv packer info
-  esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
-
-  // setup 'splash' screen
-  String software = "\n  esp32_bike ";
-  software += String("V") + version_major() + "." + version_minor() + "." + version_patch();
-  draw_splash_box(20, 20, 200, 80, software);
-
-  delay(6000); // 6 seconds
-  tft.fillScreen(BG_COLOR);            // Clear screen
 }
 
 void draw_battery_level_box(int32_t _lx, int32_t _ly, bool _filled, int8_t _warn_level) {
@@ -153,9 +116,8 @@ void draw_battery_display_box_blocks(int32_t _xx, int32_t _yy, int8_t _batt_perc
   }
 }
 
-void draw_battery_display_box() {
-  int32_t _x = 4; int32_t _y = 32;
-  int32_t _w = 232; int32_t _h = 66;
+void draw_battery_display_box(int32_t _x, int32_t _y, int32_t _w, int32_t _h) {
+
   spr.createSprite(_w, _h);
   spr.fillSprite(TFT_TRANSPARENT);
   // background 
@@ -297,12 +259,13 @@ void draw() {
   /*****************************************************************************
    * Bike Battery & Li-ion battery
    ****************************************************************************/
-  draw_battery_display_box();
+  draw_battery_display_box(4, 40, 232, 66);
+
   /*****************************************************************************
    * Temp & humidity 
    ****************************************************************************/
-  draw_display_box(4, 100, 115, 70, myData.temp, 1, "C", "Temp");
-  draw_display_box(122, 100, 115, 70, myData.fuel_perc, 0, "%", "Fuel");
+  draw_display_box(4, 108, 115, 70, myData.temp, 1, "C", "Temp");
+  draw_display_box(122, 108, 115, 70, myData.fuel_perc, 0, "%", "Fuel");
   /*****************************************************************************
    * Fuel
    ****************************************************************************/  
@@ -311,7 +274,41 @@ void draw() {
    * GPS Altitude & ground speed
    ****************************************************************************/
   //draw_display_box(4, 244, myData.gps_altitude_meters, 1, "m", "Altitude");
-  draw_display_box(TFT_WIDTH / 2 - 100, 200, 200, 100, myData.gps_speed_kmph, 0, "Km/H", "Speed");
+  //draw_display_box(TFT_WIDTH / 2 - 100, 200, 200, 100, myData.gps_speed_kmph, 0, "Km/H", "Speed");
+}
+
+void setup() {
+
+  //Initialize Serial Monitor
+  Serial.begin(115200);
+  delay(1000); // 1 seconds
+
+  tft.init();
+  tft.setRotation(0);
+  tft.fillScreen(BG_COLOR);
+
+  //Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
+
+  //Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+  Serial.println("initialised ESP-NOW OK");
+  ESP_SETUP_OK = true;
+
+  // Once ESPNow is successfully Init, we will register
+  // for recv CB to get recv packer info
+  esp_now_register_recv_cb(esp_now_recv_cb_t(OnDataRecv));
+
+  // setup 'splash' screen
+  String software = "\n  esp32_bike ";
+  software += String("V") + version_major() + "." + version_minor() + "." + version_patch();
+  draw_splash_box(20, 20, 200, 80, software);
+
+  delay(6000); // 6 seconds
+  tft.fillScreen(BG_COLOR);            // Clear screen
 }
 
 void loop() {
@@ -321,5 +318,5 @@ void loop() {
   } else {
     draw_no_esp();
   }
-  delay(1000); // 1 second
+  delay(500); // 1/2 second
 }
