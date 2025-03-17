@@ -10,6 +10,7 @@
 #include <TFT_eSPI.h>
 #include <SPI.h>
 #include <DSEG7.h>
+#include <Extensions/Smooth_font.h>
 
 
 #define digits DSEG7_Classic_Bold_32
