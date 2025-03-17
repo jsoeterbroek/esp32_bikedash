@@ -10,7 +10,7 @@
 #include <TFT_eSPI.h>
 #include <SPI.h>
 #include <DSEG7.h>
-#include <Extensions/Smooth_font.h>
+//#include <Extensions/Smooth_font.h>
 
 
 #define digits DSEG7_Classic_Bold_32
@@ -261,7 +261,7 @@ void draw() {
   int32_t t = 0; int32_t w = 0; int32_t h = 0;
 
   /*****************************************************************************
-   * Bike Battery & Li-ion battery
+   * Bike Battery
    ****************************************************************************/
   draw_battery_display_box(4, 40, 232, 66);
 
@@ -269,7 +269,7 @@ void draw() {
    * Temp & humidity 
    ****************************************************************************/
   draw_display_box(4, 108, 115, 70, myData.temp, 1, "C", "Temp");
-  draw_display_box(122, 108, 115, 70, myData.fuel_perc, 0, "%", "Fuel");
+  draw_display_box(122, 108, 115, 70, myData.hum, 0, "%", "Humid");
   /*****************************************************************************
    * Fuel
    ****************************************************************************/  
